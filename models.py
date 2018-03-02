@@ -34,7 +34,7 @@ class Recommendation(object):
     index = 0
 
     def __init__(self, id=0, product_id=0, recommend_list={}):
-        """ Initialize a Pet """
+        """ Initialize a Recommendation """
         self.id = id
         self.product_id = product_id
         self.recommend_list = recommend_list
@@ -92,7 +92,7 @@ class Recommendation(object):
 
     @staticmethod
     def all():
-        """ Returns all of the Pets in the database """
+        """ Returns all of the Recommends in the database """
         return [recommend for recommend in Recommendation.data]
 
     @staticmethod
