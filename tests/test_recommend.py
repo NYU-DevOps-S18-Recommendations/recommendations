@@ -124,9 +124,9 @@ class TestRecommendations(unittest.TestCase):
         self.assertRaises(DataValidationError, recommendation.deserialize, data)
 
     def test_deserialize_with_no_data(self):
-        """ Deserialize a Pet with no data """
-        pet = Recommendation()
-        self.assertRaises(DataValidationError, pet.deserialize, None)
+        """ Deserialize a Recommend with no data """
+        recommendation = Recommendation()
+        self.assertRaises(DataValidationError, recommendation.deserialize, None)
 
     def test_deserialize_wtih_bad_data(self):
         """ Test deserialization of bad data """

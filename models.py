@@ -27,7 +27,7 @@ class Recommendation(object):
     """
     Class that represents a Recommendation.
 
-    This version uses an in-memory collection of pets for testing
+    This version uses an in-memory collection of recommendations for testing
     """
     lock = threading.Lock()
     data = []
