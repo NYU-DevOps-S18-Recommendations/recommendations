@@ -15,11 +15,7 @@ recommend_list (dictionary) - a dictionary to get a list of product ids of
                               0: requires, 1: up-sell, 2: cross-sell
 
 """
-import logging
-from flask_sqlalchemy import SQLAlchemy
-
-# Create the SQLAlchemy object to be initialized later in init_db()
-db = SQLAlchemy()
+import threading
 
 
 class DataValidationError(Exception):
@@ -27,20 +23,21 @@ class DataValidationError(Exception):
     pass
 
 
-class Recommendation(db.Model):
+class Recommendation(object):
     """
     Class that represents a Recommendation.
 
-    This version uses a relational database for persistence which is hidden
-    from us by SQLAlchemy's object relational mappings (ORM)
+    This version uses an in-memory collection of pets for testing
     """
-    logger = logging.getLogger(__name__)
-    app = None
+    lock = threading.Lock()
+    data = []
+    index = 0
 
-    # Table Schema
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer)
-    recommend_list = db.Column(db.PickleType())
+    def __init__(self, id=0, product_id=0, recommend_list={}):
+        """ Initialize a Pet """
+        self.id = id
+        self.product_id = product_id
+        self.recommend_list = recommend_list
 
     def __repr__(self):
         return '<Recommendation %r>' % (self.product_id)
@@ -49,14 +46,18 @@ class Recommendation(db.Model):
         """
         Saves a Recommendation to the data store
         """
-        if not self.id:
-            db.session.add(self)
-        db.session.commit()
+        if self.id == 0:
+            self.id = self.__next_index()
+            Recommendation.data.append(self)
+        else:
+            for i in range(len(Recommendation.data)):
+                if Recommendation.data[i].id == self.id:
+                    Recommendation.data[i] = self
+                    break
 
     def delete(self):
         """ Removes a Recommendation from the data store """
-        db.session.delete(self)
-        db.session.commit()
+        Recommendation.data.remove(self)
 
     def serialize(self):
         """ Serializes a Recommendation into a dictionary """
@@ -83,32 +84,33 @@ class Recommendation(db.Model):
         return self
 
     @staticmethod
-    def init_db(app):
-        """ Initializes the database session """
-        Recommendation.logger.info('Initializing database')
-        Recommendation.app = app
-        # This is where we initialize SQLAlchemy from the Flask app
-        db.init_app(app)
-        app.app_context().push()
-        db.create_all()  # make our sqlalchemy tables
+    def __next_index():
+        """ Generates the next index in a continual sequence """
+        with Recommendation.lock:
+            Recommendation.index += 1
+        return Recommendation.index
 
     @staticmethod
     def all():
-        """ Returns all of the Recommendations in the database """
-        Recommendation.logger.info('Processing all Recommendations')
-        return Recommendation.query.all()
+        """ Returns all of the Pets in the database """
+        return [recommend for recommend in Recommendation.data]
+
+    @staticmethod
+    def remove_all():
+        """ Removes all of the Recommendations from the database """
+        del Recommendation.data[:]
+        Recommendation.index = 0
+        return Recommendation.data
 
     @staticmethod
     def find(Recommendation_id):
         """ Finds a Recommendation by it's ID """
-        Recommendation.logger.info('Processing lookup for id %s ...', Recommendation_id)
-        return Recommendation.query.get(Recommendation_id)
-
-    @staticmethod
-    def find_or_404(Recommendation_id):
-        """ Find a Recommendation by it's id """
-        Recommendation.logger.info('Processing lookup or 404 for id %s ...', Recommendation_id)
-        return Recommendation.query.get_or_404(Recommendation_id)
+        if not Recommendation.data:
+            return None
+        recommends = [recommend for recommend in Recommendation.data if recommend.id == Recommendation_id]
+        if recommends:
+            return recommends[0]
+        return None
 
     @staticmethod
     def find_by_product_id(product_id):
@@ -116,5 +118,4 @@ class Recommendation(db.Model):
         Args:
             product_id (int): the product_id of the Recommend you want to match
         """
-        Recommendation.logger.info('Processing product_id query for %s ...', product_id)
-        return Recommendation.query.filter(Recommendation.product_id == product_id)
+        return [recommend for recommend in Recommendation.data if recommend.product_id == product_id]
