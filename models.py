@@ -35,12 +35,12 @@ class Recommendation(object):
     data = []
     index = 0
 
-    def __init__(self, id=0, product_id=0, recommend_id=0,
+    def __init__(self, id=0, product_id=0, recommended_product_id=0,
                  recommendation_type="", likes=0):
         """ Initialize a Recommendation """
         self.id = id
         self.product_id = product_id
-        self.recommended_product_id = recommend_id
+        self.recommended_product_id = recommended_product_id
         self.recommendation_type = recommendation_type
         self.likes = likes
 
@@ -69,7 +69,7 @@ class Recommendation(object):
         return {"id": self.id,
                 "product_id": self.product_id,
                 "recommended_product_id": self.recommended_product_id,
-                "recommendation_type": self.recommendation,
+                "recommendation_type": self.recommendation_type,
                 "likes": self.likes}
 
     def deserialize(self, data):
@@ -83,7 +83,7 @@ class Recommendation(object):
             self.id = data['id']
             self.product_id = data['product_id']
             self.recommended_product_id = data['recommended_product_id']
-            self.recommendation = data['recommendation_type']
+            self.recommendation_type = data['recommendation_type']
             self.likes = data['likes']
         except KeyError as error:
             raise DataValidationError('Invalid recommend: missing ' + error.args[0])
