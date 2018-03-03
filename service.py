@@ -17,7 +17,7 @@ import os
 import sys
 import logging
 from flask import Flask, Response, jsonify, request, json, url_for, make_response
-from models import recommendation, DataValidationError
+from models import Recommendation, DataValidationError
 
 # Pull options from environment
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
@@ -37,20 +37,30 @@ HTTP_409_CONFLICT = 409
 ######################################################################
 # Error Handlers
 ######################################################################
+
+
 @app.errorhandler(DataValidationError)
 def request_validation_error(error):
     """ Handles all data validation issues from the model """
     return bad_request(error)
+
+
+
+
 
 @app.errorhandler(400)
 def bad_request(error):
     """ Handles requests that have bad or malformed data """
     return jsonify(status=400, error='Bad Request', message=error.message), 400
 
+
+
 @app.errorhandler(404)
 def not_found(error):
     """ Handles recommendations that cannot be found """
     return jsonify(status=404, error='Not Found', message=error.message), 404
+
+
 
 @app.errorhandler(405)
 def method_not_supported(error):
@@ -58,6 +68,8 @@ def method_not_supported(error):
     return jsonify(status=405, error='Method not Allowed',
                    message='Your request method is not supported.' \
                    ' Check your HTTP method and try again.'), 405
+
+
 
 @app.errorhandler(500)
 def internal_server_error(error):
@@ -78,6 +90,8 @@ def index():
 ######################################################################
 # LIST ALL recommendationS
 ######################################################################
+
+
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
     """ Retrieves a list of recommendations from the database """
@@ -93,6 +107,8 @@ def list_recommendations():
 ######################################################################
 # RETRIEVE A recommendation
 ######################################################################
+
+
 @app.route('/recommendations/<int:id>', methods=['GET'])
 def get_recommendations(id):
     """ Retrieves a recommendation with a specific id """
@@ -109,6 +125,8 @@ def get_recommendations(id):
 ######################################################################
 # ADD A NEW recommendation
 ######################################################################
+
+
 @app.route('/recommendations', methods=['POST'])
 def create_recommendations():
     """ Creates a recommendation in the database from the posted database """
@@ -124,6 +142,8 @@ def create_recommendations():
 ######################################################################
 # UPDATE AN EXISTING RECOMMENDATION
 ######################################################################
+
+
 @app.route('/recommendations/<int:id>', methods=['PUT'])
 def update_recommendations(id):
     """ Updates a recommendation in the database fom the posted database """
@@ -143,6 +163,8 @@ def update_recommendations(id):
 ######################################################################
 # DELETE A recommendation
 ######################################################################
+
+
 @app.route('/recommendations/<int:id>', methods=['DELETE'])
 def delete_recommendations(id):
     """ Removes a recommendation from the database that matches the id """
@@ -185,5 +207,5 @@ if __name__ == "__main__":
     print "*********************************"
     initialize_logging()
     # dummy data for testing
-    
+
     app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
