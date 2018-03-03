@@ -34,23 +34,21 @@ class TestRecommendations(unittest.TestCase):
 
     def test_create_a_recommendation(self):
         """ Create a recommendation and assert that it exists """
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        recommendation = Recommendation(product_id=PS4, recommend_list=recommend_list)
+        recommendation = Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
 
         self.assertNotEqual(recommendation, None)
         self.assertEqual(recommendation.id, 0)
         self.assertEqual(recommendation.product_id, PS4)
-        self.assertEqual(recommendation.recommend_list['0'], [CONTROLLER, ADAPTER])
-        self.assertEqual(recommendation.recommend_list['1'], [PS5])
-        self.assertEqual(recommendation.recommend_list['2'], [MONSTER_HUNTER, DISPLAY])
+        self.assertEqual(recommendation.recommended_product_id, CONTROLLER)
+        self.assertEqual(recommendation.recommendation_type, "accessory")
+        self.assertEqual(recommendation.likes, 0)
 
     def test_add_a_recommendation(self):
         """ Create a recommendation and add it to the database """
         recommendations = Recommendation.all()
         self.assertEqual(recommendations, [])
 
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        recommendation = Recommendation(product_id=PS4, recommend_list=recommend_list)
+        recommendation = Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
 
         self.assertNotEqual(recommendation, None)
         self.assertEqual(recommendation.product_id, PS4)
@@ -63,8 +61,7 @@ class TestRecommendations(unittest.TestCase):
 
     def test_update_a_recommendation(self):
         """ Update a Recommendation """
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        recommendation = Recommendation(product_id=PS4, recommend_list=recommend_list)
+        recommendation = Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
         recommendation.save()
 
         # Change it an save it
@@ -81,8 +78,7 @@ class TestRecommendations(unittest.TestCase):
 
     def test_delete_a_recommendation(self):
         """ Delete a Recommendation """
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        recommendation = Recommendation(product_id=PS4, recommend_list=recommend_list)
+        recommendation = Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
         recommendation.save()
         self.assertEqual(len(Recommendation.all()), 1)
 
@@ -92,8 +88,7 @@ class TestRecommendations(unittest.TestCase):
 
     def test_serialize_a_recommendation(self):
         """ Test serialization of a Recommendation """
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        recommendation = Recommendation(product_id=PS4, recommend_list=recommend_list)
+        recommendation = Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory", likes=10)
         data = recommendation.serialize()
 
         self.assertNotEqual(data, None)
@@ -101,26 +96,30 @@ class TestRecommendations(unittest.TestCase):
         self.assertEqual(data['id'], 0)
         self.assertIn('product_id', data)
         self.assertEqual(data['product_id'], PS4)
-        self.assertIn('recommend_list', data)
-        self.assertEqual(data['recommend_list'], recommend_list)
+        self.assertIn('recommended_product_id', data)
+        self.assertEqual(data['recommended_product_id'], CONTROLLER)
+        self.assertIn('recommendation_type', data)
+        self.assertEqual(data['recommendation_type'], "accessory")
+        self.assertIn('likes', data)
+        self.assertEqual(data['likes'], 10)
 
     def test_deserialize_a_recommendation(self):
         """ Test deserialization of a Recommendation """
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        data = {'id': 1, 'product_id': PS4, 'recommend_list': recommend_list}
+        data = {'id': 1, 'product_id': PS4, 'recommended_product_id': CONTROLLER, 'recommendation_type': "accessory", 'likes': 10}
         recommendation = Recommendation()
         recommendation.deserialize(data)
 
         self.assertNotEqual(recommendation, None)
         self.assertEqual(recommendation.id, 1)
         self.assertEqual(recommendation.product_id, PS4)
-        self.assertEqual(recommendation.recommend_list, recommend_list)
+        self.assertEqual(recommendation.recommended_product_id, CONTROLLER)
+        self.assertEqual(recommendation.recommendation_type, "accessory")
+        self.assertEqual(recommendation.likes, 10)
 
     def test_deserialize_with_no_product_id(self):
         """ Deserialize a Recommend without a name """
         recommendation = Recommendation()
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        data = {"id": 0, 'recommend_list': recommend_list}
+        data = {"id": 0, 'recommended_product_id': CONTROLLER, 'recommendation_type': "accessory", 'likes': 10}
         self.assertRaises(DataValidationError, recommendation.deserialize, data)
 
     def test_deserialize_with_no_data(self):
@@ -136,16 +135,17 @@ class TestRecommendations(unittest.TestCase):
 
     def test_find_recommendation(self):
         """ Find a Recommendation by product_id """
-        Recommendation(product_id=PS3, recommend_list={'0': [], '1': [], '2': []}).save()
-        recommend_list = {'0': [CONTROLLER, ADAPTER], '1': [PS5], '2': [MONSTER_HUNTER, DISPLAY]}
-        ps4 = Recommendation(product_id=PS4, recommend_list=recommend_list)
+        Recommendation(product_id=PS3, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        ps4 = Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
         ps4.save()
 
         recommendation = Recommendation.find_by_product_id(ps4.product_id)
         self.assertIsNot(len(recommendation), 0)
         self.assertEqual(recommendation[0].id, ps4.id)
         self.assertEqual(recommendation[0].product_id, PS4)
-        self.assertEqual(recommendation[0].recommend_list, recommend_list)
+        self.assertEqual(recommendation[0].recommended_product_id, ps4.recommended_product_id)
+        self.assertEqual(recommendation[0].recommendation_type, ps4.recommendation_type)
+        self.assertEqual(recommendation[0].likes, ps4.likes)
 
     def test_find_with_no_recommendation(self):
         """ Find a Recommend with no Recommends """
@@ -154,9 +154,47 @@ class TestRecommendations(unittest.TestCase):
 
     def test_recommend_not_found(self):
         """ Test for a Recommend that doesn't exist """
-        Recommendation(0, PS4, {}).save()
+        Recommendation(id=0, product_id=PS4).save()
         recommendation = Recommendation.find(2)
         self.assertIs(recommendation, None)
+
+    def test_find_by_recommend_product_id(self):
+        """ Test find by recommend_product_id """
+        Recommendation(product_id=PS3, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        Recommendation(product_id=PS4, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+
+        recommendations = Recommendation.find_by_recommend_product_id(CONTROLLER)
+        self.assertEqual(len(recommendations), 2)
+        self.assertEqual(recommendations[0].product_id, PS3)
+        self.assertEqual(recommendations[1].product_id, PS4)
+
+    def test_find_by_recommend_type(self):
+        """ Test find by recommend_type """
+        Recommendation(product_id=PS3, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        Recommendation(product_id=PS4, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+
+        recommendations = Recommendation.find_by_recommend_type("accessory")
+        self.assertEqual(len(recommendations), 2)
+        self.assertEqual(recommendations[0].product_id, PS3)
+        self.assertEqual(recommendations[1].product_id, PS4)
+
+    def test_find_by_likes(self):
+        """ Test find by likes """
+        Recommendation(product_id=PS3, recommended_product_id=CONTROLLER, recommendation_type="accessory", likes=1).save()
+        Recommendation(product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory", likes=5).save()
+        Recommendation(product_id=PS4, recommended_product_id=MONSTER_HUNTER, recommendation_type="accessory", likes=10).save()
+
+        # Test query for nothing
+        recommendations = Recommendation.find_by_likes(100)
+        self.assertEqual(len(recommendations), 0)
+
+        # Test query for something
+        recommendations = Recommendation.find_by_likes(5)
+        self.assertEqual(len(recommendations), 2)
+        self.assertEqual(recommendations[0].recommended_product_id, CONTROLLER)
+        self.assertEqual(recommendations[1].recommended_product_id, MONSTER_HUNTER)
 
 ######################################################################
 #   M A I N
