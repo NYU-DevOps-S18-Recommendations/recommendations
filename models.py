@@ -9,10 +9,12 @@ Recommendation - A recommendation used in the service
 
 Attributes:
 -----------
+
 product_id (int) - the product id of this recommendation
-recommend_list (dictionary) - a dictionary to get a list of product ids of
-                              recommends, corresponding to the key as type
-                              0: requires, 1: up-sell, 2: cross-sell
+recommended_product_id (int) - the product id of being recommended
+recommendation_type (string) - the type of this recommendation, should be
+                               ('up-sell', 'cross-sell', 'accessory')
+likes (int) - the count of how many people like this recommendation
 
 """
 import threading
@@ -33,11 +35,14 @@ class Recommendation(object):
     data = []
     index = 0
 
-    def __init__(self, id=0, product_id=0, recommend_list={}):
+    def __init__(self, id=0, product_id=0, recommend_id=0,
+                 recommendation_type="", likes=0):
         """ Initialize a Recommendation """
         self.id = id
         self.product_id = product_id
-        self.recommend_list = recommend_list
+        self.recommended_product_id = recommend_id
+        self.recommendation_type = recommendation_type
+        self.likes = likes
 
     def __repr__(self):
         return '<Recommendation %r>' % (self.product_id)
@@ -63,7 +68,9 @@ class Recommendation(object):
         """ Serializes a Recommendation into a dictionary """
         return {"id": self.id,
                 "product_id": self.product_id,
-                "recommend_list": self.recommend_list}
+                "recommended_product_id": self.recommended_product_id,
+                "recommendation_type": self.recommendation,
+                "likes": self.likes}
 
     def deserialize(self, data):
         """
@@ -75,7 +82,9 @@ class Recommendation(object):
         try:
             self.id = data['id']
             self.product_id = data['product_id']
-            self.recommend_list = data['recommend_list']
+            self.recommended_product_id = data['recommended_product_id']
+            self.recommendation = data['recommendation_type']
+            self.likes = data['likes']
         except KeyError as error:
             raise DataValidationError('Invalid recommend: missing ' + error.args[0])
         except TypeError as error:
@@ -107,7 +116,8 @@ class Recommendation(object):
         """ Finds a Recommendation by it's ID """
         if not Recommendation.data:
             return None
-        recommends = [recommend for recommend in Recommendation.data if recommend.id == Recommendation_id]
+        recommends = [recommend for recommend in Recommendation.data
+                      if recommend.id == Recommendation_id]
         if recommends:
             return recommends[0]
         return None
@@ -118,4 +128,32 @@ class Recommendation(object):
         Args:
             product_id (int): the product_id of the Recommend you want to match
         """
-        return [recommend for recommend in Recommendation.data if recommend.product_id == product_id]
+        return [recommend for recommend in Recommendation.data
+                if recommend.product_id == product_id]
+
+    @staticmethod
+    def find_by_recommend_product_id(recommend_product_id):
+        """ Returns Recommend with the given product_id
+        Args:
+            recommend_product_id (int): the recommend_product_id of the Recommend you want to match
+        """
+        return [recommend for recommend in Recommendation.data
+                if recommend.recommended_product_id == recommend_product_id]
+
+    @staticmethod
+    def find_by_recommend_type(recommendation_type):
+        """ Returns Recommend with given recommendation_type
+        Args:
+            recommend_type (int): the recommend type of the Recommend you want to match
+        """
+        return [recommend for recommend in Recommendation.data
+                if recommend.recommendation_type == recommendation_type]
+
+    @staticmethod
+    def find_by_likes(likes):
+        """ Returns Recommends that have more likes
+        Args:
+            likes (int): the number of likes that a Recommend should have at least
+        """
+        return [recommend for recommend in Recommendation.data
+                if recommend.likes >= likes]
