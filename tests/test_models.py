@@ -127,7 +127,7 @@ class TestRecommendations(unittest.TestCase):
         recommendation = Recommendation()
         self.assertRaises(DataValidationError, recommendation.deserialize, None)
 
-    def test_deserialize_wtih_bad_data(self):
+    def test_deserialize_with_bad_data(self):
         """ Test deserialization of bad data """
         data = "this is not a dictionary"
         recommendation = Recommendation()
