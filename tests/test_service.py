@@ -3,7 +3,6 @@ import json
 import logging
 from flask_api import status    # HTTP Status Codes
 
-from models import Recommendation
 import service
 
 ######################################################################
@@ -12,6 +11,7 @@ import service
 
 # Product_id
 PS4 = 1
+PS3 = 31
 CONTROLLER = 2
 
 
@@ -31,15 +31,14 @@ class TestRecommendationservice(unittest.TestCase):
     def setUp(self):
         """ Runs before each test """
         service.Recommendation.remove_all()
+        service.Recommendation(0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(0, product_id=PS3, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
         self.app = service.app.test_client()
 
     def tearDown(self):
         service.Recommendation.remove_all()
 
     def test_get_recommendation(self):
-        ps4 = Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
-        ps4.save()
-
         """ Read a single Recommendation """
         resp = self.app.get('/recommendations/1')
 
@@ -55,6 +54,13 @@ class TestRecommendationservice(unittest.TestCase):
         """ Read a Recommendation thats not found """
         resp = self.app.get('/recommendations/11')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_get_recommendation_list(self):
+        """ Get a list of Recommendations """
+        resp = self.app.get('/recommendations')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data), 2)
 
 ######################################################################
 #   M A I N
