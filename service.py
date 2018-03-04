@@ -1,5 +1,5 @@
 """
-Recommendation Service.
+Recommendation Service
 
 This is an example of a recommendation service written with Python Flask
 It demonstraits how a RESTful service should be implemented.
@@ -45,10 +45,14 @@ def request_validation_error(error):
     return bad_request(error)
 
 
+
+
+
 @app.errorhandler(400)
 def bad_request(error):
     """ Handles requests that have bad or malformed data """
     return jsonify(status=400, error='Bad Request', message=error.message), 400
+
 
 
 @app.errorhandler(404)
@@ -57,12 +61,14 @@ def not_found(error):
     return jsonify(status=404, error='Not Found', message=error.message), 404
 
 
+
 @app.errorhandler(405)
 def method_not_supported(error):
     """ Handles bad method calls """
     return jsonify(status=405, error='Method not Allowed',
                    message='Your request method is not supported.' \
                    ' Check your HTTP method and try again.'), 405
+
 
 
 @app.errorhandler(500)
@@ -89,7 +95,12 @@ def index():
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
     """ Retrieves a list of recommendations from the database """
-    results = Recommendation.all()
+    results = []
+    category = request.args.get('category')
+    if category:
+        results = Recommendation.find_by_category(category)
+    else:
+        results = Recommendation.all()
 
     return jsonify([recommendation.serialize() for recommendation in results]), HTTP_200_OK
 
@@ -170,7 +181,7 @@ def delete_recommendations(id):
 def initialize_logging(log_level=logging.INFO):
     """ Initialized the default logging to STDOUT """
     if not app.debug:
-        print "Setting up logging..."
+        print 'Setting up logging...'
         # Set up default logging for submodules to use STDOUT
         # datefmt='%m/%d/%Y %I:%M:%S %p'
         fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
