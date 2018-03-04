@@ -42,9 +42,10 @@ class TestRecommendationservice(unittest.TestCase):
 
         """ Read a single Recommendation """
         resp = self.app.get('/recommendations/1')
+
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-        # self.assertEqual(data['id'], 0)
+        self.assertEqual(data['id'], 1)
         self.assertEqual(data['product_id'], PS4)
         self.assertEqual(data['recommended_product_id'], CONTROLLER)
         self.assertEqual(data['recommendation_type'], "accessory")
