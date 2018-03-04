@@ -7,7 +7,7 @@ It demonstraits how a RESTful service should be implemented.
 Paths
 -----
 GET  /recommendations - Retrieves a list of recommendations from the database
-GET  /recommendations{id} - Retrieves a recommendation with a specific id
+GET  /recommendations/{id} - Retrieves a recommendation with a specific id
 POST /recommendations - Creates a recommendation in the datbase from the posted database
 PUT  /recommendations/{id} - Updates a recommendation in the database fom the posted database
 DELETE /recommendations{id} - Removes a recommendation from the database that matches the id

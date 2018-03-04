@@ -1,58 +1,66 @@
-# Copyright 2016, 2017 John J. Rofrano. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-"""
-Test cases for the Recommendation Service
-
-Test cases can be run with:
-  nosetests
-  coverage report -m
-"""
-
-import logging
 import unittest
 import json
+import logging
 from flask_api import status    # HTTP Status Codes
-from models import Recommendation, DataValidationError
+
+from models import Recommendation
 import service
 
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class TestRecommendationServer(unittest.TestCase):
-    """ Pet Server Tests """
+
+# Product_id
+PS4 = 1
+CONTROLLER = 2
+
+
+class TestRecommendationservice(unittest.TestCase):
+    """ Recommendation service Tests """
 
     @classmethod
     def setUpClass(cls):
         """ Run once before all tests """
         service.app.debug = False
-        service.initialize_logging(logging.ERROR)
+        service.initialize_logging(logging.INFO)
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
 
     def setUp(self):
         """ Runs before each test """
         service.Recommendation.remove_all()
-        service.Recommendation(0, 2, 4, "up-sell", 1).save()
-        service.Recommendation(0, 2, 3, "accessory", 2).save()
         self.app = service.app.test_client()
 
     def tearDown(self):
-        """ Runs after each test """
         service.Recommendation.remove_all()
+
+    def test_get_recommendation(self):
+        ps4 = Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
+        ps4.save()
+
+        """ Read a single Recommendation """
+        resp = self.app.get('/recommendations/1')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        self.assertEqual(data['id'], 1)
+        self.assertEqual(data['product_id'], PS4)
+        self.assertEqual(data['recommended_product_id'], CONTROLLER)
+        self.assertEqual(data['recommendation_type'], "accessory")
+        self.assertEqual(data['likes'], 0)
+
+    def test_get_recommendation_not_found(self):
+        """ Read a Recommendation thats not found """
+        resp = self.app.get('/recommendations/11')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
 
     def test_delete_recommendation(self):
-        """ Delete a recommendation that exists """
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        service.Recommendation(0, 2, 3, "accessory", 2).save()
+
         # save the current number of recommendation for later comparrison
         recommendation_count = self.get_recommendation_count()
         self.assertEqual(recommendation_count, 2)
@@ -64,17 +72,15 @@ class TestRecommendationServer(unittest.TestCase):
         new_count = self.get_recommendation_count()
         self.assertEqual(new_count, recommendation_count - 1)
 
-
 ######################################################################
 # Utility functions
 ######################################################################
 
     def get_recommendation_count(self):
-        """ save the current number of pets """
+        """ save the current number of recommendations """
         resp = self.app.get('/recommendations')
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
-        # self.assertEqual(data[0]['product_id'], 2)
         return len(data)
 
 
