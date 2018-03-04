@@ -56,6 +56,34 @@ class TestRecommendationservice(unittest.TestCase):
         resp = self.app.get('/recommendations/11')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+
+    def test_delete_recommendation(self):
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        service.Recommendation(0, 2, 3, "accessory", 2).save()
+
+        # save the current number of recommendation for later comparrison
+        recommendation_count = self.get_recommendation_count()
+        self.assertEqual(recommendation_count, 2)
+        
+        # delete a recommendation
+        resp = self.app.delete('/recommendations/1', content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(resp.data), 0)
+        new_count = self.get_recommendation_count()
+        self.assertEqual(new_count, recommendation_count - 1)
+
+######################################################################
+# Utility functions
+######################################################################
+
+    def get_recommendation_count(self):
+        """ save the current number of recommendations """
+        resp = self.app.get('/recommendations')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        return len(data)
+
+
 ######################################################################
 #   M A I N
 ######################################################################

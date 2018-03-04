@@ -169,7 +169,7 @@ def update_recommendations(id):
 @app.route('/recommendations/<int:id>', methods=['DELETE'])
 def delete_recommendations(id):
     """ Removes a recommendation from the database that matches the id """
-    recommendation = recommendation.find(id)
+    recommendation = Recommendation.find(id)
     if recommendation:
         recommendation.delete()
     return make_response('', HTTP_204_NO_CONTENT)
