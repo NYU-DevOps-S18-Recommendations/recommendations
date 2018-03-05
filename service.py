@@ -113,7 +113,6 @@ def list_recommendations():
 def get_recommendations(id):
     """ Retrieves a recommendation with a specific id """
     recommendation = Recommendation.find(id)
-
     if recommendation:
         message = recommendation.serialize()
         return_code = HTTP_200_OK
@@ -148,7 +147,7 @@ def create_recommendations():
 @app.route('/recommendations/<int:id>', methods=['PUT'])
 def update_recommendations(id):
     """ Updates a recommendation in the database fom the posted database """
-    recommendation = recommendation.find(id)
+    recommendation = Recommendation.find(id)
     if recommendation:
         payload = request.get_json()
         recommendation.deserialize(payload)
