@@ -45,14 +45,10 @@ def request_validation_error(error):
     return bad_request(error)
 
 
-
-
-
 @app.errorhandler(400)
 def bad_request(error):
     """ Handles requests that have bad or malformed data """
     return jsonify(status=400, error='Bad Request', message=error.message), 400
-
 
 
 @app.errorhandler(404)
@@ -61,14 +57,12 @@ def not_found(error):
     return jsonify(status=404, error='Not Found', message=error.message), 404
 
 
-
 @app.errorhandler(405)
 def method_not_supported(error):
     """ Handles bad method calls """
     return jsonify(status=405, error='Method not Allowed',
                    message='Your request method is not supported.' \
                    ' Check your HTTP method and try again.'), 405
-
 
 
 @app.errorhandler(500)
@@ -173,6 +167,25 @@ def delete_recommendations(id):
     if recommendation:
         recommendation.delete()
     return make_response('', HTTP_204_NO_CONTENT)
+
+
+######################################################################
+# QUERY recommendations
+######################################################################
+@app.route('/recommendations/find_by_product_id/<int:product_id>', methods=['GET'])
+def query_recommendations_by_product_id(product_id):
+    """ Query a recommendation from the database that have the same product_id """
+    recommendations = Recommendation.find_by_product_id(product_id)
+    if len(recommendations) > 0:
+        message = [recommendation.serialize()
+                   for recommendation in recommendations]
+        return_code = HTTP_200_OK
+    else:
+        message = {'error': 'Recommendation with product_id: \
+                    %s was not found' % str(product_id)}
+        return_code = HTTP_404_NOT_FOUND
+
+    return jsonify(message), return_code
 
 
 ######################################################################
