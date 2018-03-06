@@ -2,14 +2,14 @@
 Recommendation Service
 
 This is an example of a recommendation service written with Python Flask
-It demonstraits how a RESTful service should be implemented.
+It demonstrates how a RESTful service should be implemented.
 
 Paths
 -----
 GET  /recommendations - Retrieves a list of recommendations from the database
 GET  /recommendations/{id} - Retrieves a recommendation with a specific id
 POST /recommendations - Creates a recommendation in the datbase from the posted database
-PUT  /recommendations/{id} - Updates a recommendation in the database fom the posted database
+PUT  /recommendations/{id} - Updates a recommendation in the database fom the posted database with a specific id
 DELETE /recommendations{id} - Removes a recommendation from the database that matches the id
 """
 
@@ -38,14 +38,10 @@ HTTP_409_CONFLICT = 409
 # Error Handlers
 ######################################################################
 
-
 @app.errorhandler(DataValidationError)
 def request_validation_error(error):
     """ Handles all data validation issues from the model """
     return bad_request(error)
-
-
-
 
 
 @app.errorhandler(400)
@@ -54,12 +50,10 @@ def bad_request(error):
     return jsonify(status=400, error='Bad Request', message=error.message), 400
 
 
-
 @app.errorhandler(404)
 def not_found(error):
     """ Handles recommendations that cannot be found """
     return jsonify(status=404, error='Not Found', message=error.message), 404
-
 
 
 @app.errorhandler(405)
