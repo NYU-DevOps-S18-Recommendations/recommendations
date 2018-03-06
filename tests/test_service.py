@@ -3,7 +3,6 @@ import json
 import logging
 from flask_api import status    # HTTP Status Codes
 
-from models import Recommendation
 import service
 
 ######################################################################
@@ -12,7 +11,9 @@ import service
 
 # Product_id
 PS4 = 1
+PS3 = 31
 CONTROLLER = 2
+
 
 class TestRecommendationservice(unittest.TestCase):
     """ Recommendation service Tests """
@@ -36,10 +37,8 @@ class TestRecommendationservice(unittest.TestCase):
         service.Recommendation.remove_all()
 
     def test_get_recommendation(self):
-        ps4 = Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory")
-        ps4.save()
-
         """ Read a single Recommendation """
+        service.Recommendation(0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
         resp = self.app.get('/recommendations/1')
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
@@ -55,6 +54,15 @@ class TestRecommendationservice(unittest.TestCase):
         resp = self.app.get('/recommendations/11')
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_get_recommendation_list(self):
+        """ Get a list of Recommendations """
+        service.Recommendation(0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(0, product_id=PS3, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        resp = self.app.get('/recommendations')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data), 2)
+
     def test_create_recommendation(self):
         """Create a recommendation"""
         # save the current number of recommendations for later comparison
@@ -66,7 +74,7 @@ class TestRecommendationservice(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         # Make sure location header is set
         location = resp.headers.get('Location', None)
-        self.assertTrue(location != None)
+        self.assertTrue(location is not None)
         # Check the data is correct
         new_json = json.loads(resp.data)
         self.assertEqual(new_json['product_id'], 6)
@@ -103,7 +111,6 @@ class TestRecommendationservice(unittest.TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         return len(data)
-
 
 ######################################################################
 #   M A I N
