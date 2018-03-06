@@ -1,7 +1,7 @@
 # Recommendations Service
 
 This repo contains details of our Recommendations Service.
-The resource model has no persistence to keep the application simple. It's purpose is to show the correct API and return codes that should be used for a REST API.
+The resource model has no persistence to keep the application simple. It's purpose is to show the correct API and return codes that should be used for a Recommendations Service API.
 
 ## Prerequisite Installation using Vagrant
 
