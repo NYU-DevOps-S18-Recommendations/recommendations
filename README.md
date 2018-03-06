@@ -40,7 +40,7 @@ If the VM is no longer needed you can remove it with:
 Run the tests using `nosetests` and `coverage`
 
     $ nosetests
-    $ coverage report -m --include=server.py
+    $ coverage report -m --include=service.py
 
 ## What's featured in the project?
 
