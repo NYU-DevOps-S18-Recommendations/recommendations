@@ -1,5 +1,8 @@
 # Recommendations Service
 
+[![Build Status](https://travis-ci.org/NYU-DevOps-S18-Recommendations/recommendations.svg?branch=master)](https://travis-ci.org/NYU-DevOps-S18-Recommendations/recommendations)
+[![codecov](https://codecov.io/gh/NYU-DevOps-S18-Recommendations/recommendations/branch/master/graph/badge.svg)](https://codecov.io/gh/NYU-DevOps-S18-Recommendations/recommendations)
+
 This repo contains details of our Recommendations Service.
 The resource model has no persistence to keep the application simple. It's purpose is to show the correct API and return codes that should be used for a Recommendations Service API.
 
