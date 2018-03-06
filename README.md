@@ -35,6 +35,13 @@ If the VM is no longer needed you can remove it with:
 
     $ vagrant destroy
 
+## Manually running the Tests
+
+Run the tests using `nosetests` and `coverage`
+
+    $ nosetests
+    $ coverage report -m --include=server.py
+
 ## What's featured in the project?
 
     * service.py -- the main Recommendation Service using Python Flask
