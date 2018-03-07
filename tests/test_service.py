@@ -21,7 +21,7 @@ PS3 = 31
 
 
 class TestRecommendationservice(unittest.TestCase):
-    """ Recommendation service Tests """
+    """ Recommendation Service Tests """
 
     @classmethod
     def setUpClass(cls):
@@ -114,10 +114,11 @@ class TestRecommendationservice(unittest.TestCase):
         self.assertIn(new_json, data)
 
     def test_delete_recommendation(self):
+        """Deletes a recommendation"""
         service.Recommendation(0, 2, 4, "up-sell", 1).save()
         service.Recommendation(0, 2, 3, "accessory", 2).save()
 
-        # save the current number of recommendation for later comparrison
+        # save the current number of recommendation for later comparison
         recommendation_count = self.get_recommendation_count()
         self.assertEqual(recommendation_count, 2)
 
@@ -127,6 +128,57 @@ class TestRecommendationservice(unittest.TestCase):
         self.assertEqual(len(resp.data), 0)
         new_count = self.get_recommendation_count()
         self.assertEqual(new_count, recommendation_count - 1)
+
+    def test_update_recommendation(self):
+        """ Update a Recommendation """
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        new_recommendation = {'id': 0,'product_id': 2, 'recommended_product_id': 8, 'recommendation_type': "up-sell", 'likes': 1}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/1', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        resp = self.app.get('/recommendations')
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        new_json = json.loads(resp.data)
+        self.assertEqual(new_json[0]['recommended_product_id'], 8)
+
+    def test_update_recommendation_with_no_product_id(self):
+        """ Update a Recommendation with no product_id"""
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        new_recommendation = {'id': 0, 'recommended_product_id': 8, 'recommendation_type': "up-sell", 'likes': 1}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/1', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_recommendation_with_no_recommended_product_id(self):
+        """ Update a Recommendation with no recommended_product_id"""
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        new_recommendation = {'id': 0, 'product_id': 2, 'recommendation_type': "up-sell", 'likes': 1}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/1', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_recommendation_with_no_recommendedation_type(self):
+        """ Update a Recommendation with no recommendation_type"""
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        new_recommendation = {'id': 0, 'product_id': 2, 'recommended_product_id': 8,'likes': 1}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/1', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_recommendation_with_no_likes_field(self):
+        """ Update a Recommendation with no likes field added"""
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        new_recommendation = {'id': 0, 'product_id': 2, 'recommended_product_id': 8, 'recommended_type': "up-sell"}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/1', data=data, content_type='application/json')
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_recommendation_not_found(self):
+        """ Update a recommendation that can't be found """
+        new_recommendation = {'id': 0, 'product_id': 2, 'recommended_product_id': 8, 'recommendation_type': "up-sell", 'likes': 1}
+        data = json.dumps(new_recommendation)
+        resp = self.app.put('/recommendations/0', data=data, content_type='application/json')
+        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
 
 ######################################################################
 # Utility functions
