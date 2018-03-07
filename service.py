@@ -107,7 +107,6 @@ def list_recommendations():
 def get_recommendations(id):
     """ Retrieves a recommendation with a specific id """
     recommendation = Recommendation.find(id)
-
     if recommendation:
         message = recommendation.serialize()
         return_code = HTTP_200_OK
@@ -142,7 +141,7 @@ def create_recommendations():
 @app.route('/recommendations/<int:id>', methods=['PUT'])
 def update_recommendations(id):
     """ Updates a recommendation in the database fom the posted database """
-    recommendation = recommendation.find(id)
+    recommendation = Recommendation.find(id)
     if recommendation:
         payload = request.get_json()
         recommendation.deserialize(payload)
@@ -163,7 +162,7 @@ def update_recommendations(id):
 @app.route('/recommendations/<int:id>', methods=['DELETE'])
 def delete_recommendations(id):
     """ Removes a recommendation from the database that matches the id """
-    recommendation = recommendation.find(id)
+    recommendation = Recommendation.find(id)
     if recommendation:
         recommendation.delete()
     return make_response('', HTTP_204_NO_CONTENT)
