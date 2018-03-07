@@ -66,20 +66,28 @@ class TestRecommendationservice(unittest.TestCase):
         service.Recommendation(id=0, product_id=PS4, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
         service.Recommendation(id=0, product_id=PS5, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
 
-        resp = self.app.get('/recommendations/find_by_product_id/' + str(PS4))
+        resp = self.app.get('/recommendations?product_id=' + str(PS4))
 
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = json.loads(resp.data)
         self.assertEqual(len(data), 3)
         self.assertEqual(data[0]['product_id'], PS4)
 
-    def test_query_recommendation_by_product_id_fail(self):
-        """ Query Recommendations by the product_id that don't exist """
+    def test_query_recommendation_by_product_id_not_found(self):
+        """ Query Recommendations by the product_id that doesn't exist """
         service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
         service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
 
-        resp = self.app.get('/recommendations/find_by_product_id/' + str(PS5))
+        resp = self.app.get('/recommendations?product_id=' + str(PS5))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_recommendation_by_product_id_bad_request(self):
+        """ Query Recommendations by invalid product_id """
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
+
+        resp = self.app.get('/recommendations?product_id=' + 'PS5')
+        self.assertEqual(resp.status_code, 500)
 
     def test_get_recommendation_list(self):
         """ Get a list of Recommendations """
