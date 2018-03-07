@@ -188,6 +188,21 @@ class TestRecommendationservice(unittest.TestCase):
         resp = self.app.put('/recommendations/0', data=data, content_type='application/json')
         self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_like_recommendation(self):
+        """ Increase a recommendation """
+        service.Recommendation(0, 2, 4, "up-sell", 2).save()
+        resp = self.app.put("/recommendations/1/likes", content_type = 'application/json')
+        data = json.loads(resp.data)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(data['likes'], 3)
+
+    def test_like_recommendation_not_found(self):
+        """ Increase a recommendation """
+        service.Recommendation(0, 2, 4, "up-sell", 1).save()
+        resp = self.app.put("/recommendations/2/likes", content_type='application/json')
+        self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+
 ######################################################################
 # Utility functions
 ######################################################################
