@@ -38,6 +38,7 @@ HTTP_409_CONFLICT = 409
 # Error Handlers
 ######################################################################
 
+
 @app.errorhandler(DataValidationError)
 def request_validation_error(error):
     """ Handles all data validation issues from the model """
@@ -80,8 +81,9 @@ def index():
                    version='1.0',
                    url=url_for('list_recommendations', _external=True)), HTTP_200_OK
 
+
 ######################################################################
-# LIST ALL recommendationS
+# LIST ALL & QUERY recommendations
 ######################################################################
 
 
@@ -89,13 +91,31 @@ def index():
 def list_recommendations():
     """ Retrieves a list of recommendations from the database """
     results = []
-    category = request.args.get('category')
-    if category:
-        results = Recommendation.find_by_category(category)
+    product_id = request.args.get('product_id')
+    if product_id:
+        message, return_code = query_recommendations_by_product_id(product_id)
     else:
         results = Recommendation.all()
+        message = [recommendation.serialize() for recommendation in results]
+        return_code = HTTP_200_OK
 
-    return jsonify([recommendation.serialize() for recommendation in results]), HTTP_200_OK
+    return jsonify(message), return_code
+
+
+def query_recommendations_by_product_id(product_id):
+    """ Query a recommendation from the database that have the same product_id """
+    recommendations = Recommendation.find_by_product_id(int(product_id))
+    if len(recommendations) > 0:
+        message = [recommendation.serialize()
+                   for recommendation in recommendations]
+        return_code = HTTP_200_OK
+    else:
+        message = {'error': 'Recommendation with product_id: \
+                    %s was not found' % str(product_id)}
+        return_code = HTTP_404_NOT_FOUND
+
+    return message, return_code
+
 
 ######################################################################
 # RETRIEVE A recommendation
@@ -165,25 +185,6 @@ def delete_recommendations(id):
     if recommendation:
         recommendation.delete()
     return make_response('', HTTP_204_NO_CONTENT)
-
-
-######################################################################
-# QUERY recommendations
-######################################################################
-@app.route('/recommendations/find_by_product_id/<int:product_id>', methods=['GET'])
-def query_recommendations_by_product_id(product_id):
-    """ Query a recommendation from the database that have the same product_id """
-    recommendations = Recommendation.find_by_product_id(product_id)
-    if len(recommendations) > 0:
-        message = [recommendation.serialize()
-                   for recommendation in recommendations]
-        return_code = HTTP_200_OK
-    else:
-        message = {'error': 'Recommendation with product_id: \
-                    %s was not found' % str(product_id)}
-        return_code = HTTP_404_NOT_FOUND
-
-    return jsonify(message), return_code
 
 
 ######################################################################
