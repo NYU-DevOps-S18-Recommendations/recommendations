@@ -53,11 +53,11 @@ Run the tests using `nosetests` and `coverage`
 ## Valid content description of JSON file
 
     {
-    	"id" : <int> #the id of a recommendation 
-		"product_id" : <int> #the id of the product in the recommendation 
-		"recommended_product_id" : <int> #the id of the product that's being recommended with a given product
-		"recommendation_type" : <string> #describes the type of recommendation (eg. Up-sell, Cross-Sell, Accessory)
-		"likes" : <int> #a count of the number of people who like the recommendation 
+      "id" : <int> #the id of a recommendation 
+	  "product_id" : <int> #the id of the product in the recommendation 
+	  "recommended_product_id" : <int> #the id of the product that's being recommended with a given product
+	  "recommendation_type" : <string> #describes the type of recommendation (eg. Up-sell, Cross-Sell, Accessory)
+	  "likes" : <int> #a count of the number of people who like the recommendation 
     }
 
 ## What's featured in the project?
