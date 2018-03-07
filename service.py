@@ -195,10 +195,10 @@ def like_recommendation(id):
     if not recommendations:
         message = {'error': 'Recommendation with product_id: %s was not found' %str(id)}
         return_code = HTTP_404_NOT_FOUND
-
-    recommendations.likes += 1
-    message = recommendations.serialize()
-    return_code = HTTP_200_OK
+    else:
+        recommendations.likes += 1
+        message = recommendations.serialize()
+        return_code = HTTP_200_OK
 
     return jsonify(message), return_code
 
