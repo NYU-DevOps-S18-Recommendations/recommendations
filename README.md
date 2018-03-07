@@ -8,7 +8,7 @@ The resource model has no persistence to keep the application simple. It's purpo
 
 ## Prerequisite Installation using Vagrant
 
-The easiest way to use this lab is with Vagrant and VirtualBox. if you don't have this software the first step is to download and install it.
+The easiest way to use this service is with Vagrant and VirtualBox. if you don't have this software the first step is to download and install it.
 
 Download [VirtualBox](https://www.virtualbox.org/)
 
@@ -41,6 +41,24 @@ Run the tests using `nosetests` and `coverage`
 
     $ nosetests
     $ coverage report -m --include=service.py
+
+## API Calls with specified inputs available within this service
+
+GET  /recommendations - Retrieves a list of recommendations from the database
+GET  /recommendations/{id} - Retrieves a recommendation with a specific id
+POST /recommendations - Creates a recommendation in the datbase from the posted database
+PUT  /recommendations/{id} - Updates a recommendation in the database fom the posted database
+DELETE /recommendations{id} - Removes a recommendation from the database that matches the id
+
+## Valid content description of JSON file
+
+{
+	"id" : <int> #the id of a recommendation 
+	"product_id" : <int> #the id of the product in the recommendation 
+	"recommended_product_id" : <int> #the id of the product that's being recommended with a given product
+	"recommendation_type" : <string> #describes the type of recommendation (eg. Up-sell, Cross-Sell, Accessory)
+	"likes" : <int> #a count of the number of people who like the recommendation 
+}
 
 ## What's featured in the project?
 
