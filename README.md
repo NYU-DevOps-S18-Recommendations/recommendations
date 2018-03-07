@@ -44,21 +44,21 @@ Run the tests using `nosetests` and `coverage`
 
 ## API Calls with specified inputs available within this service
 
-GET  /recommendations - Retrieves a list of recommendations from the database
-GET  /recommendations/{id} - Retrieves a recommendation with a specific id
-POST /recommendations - Creates a recommendation in the datbase from the posted database
-PUT  /recommendations/{id} - Updates a recommendation in the database fom the posted database
-DELETE /recommendations{id} - Removes a recommendation from the database that matches the id
+    GET  /recommendations - Retrieves a list of recommendations from the database
+    GET  /recommendations/{id} - Retrieves a recommendation with a specific id
+    POST /recommendations - Creates a recommendation in the datbase from the posted database
+    PUT  /recommendations/{id} - Updates a recommendation in the database fom the posted database
+    DELETE /recommendations{id} - Removes a recommendation from the database that matches the id
 
 ## Valid content description of JSON file
 
-{
-	"id" : <int> #the id of a recommendation 
-	"product_id" : <int> #the id of the product in the recommendation 
-	"recommended_product_id" : <int> #the id of the product that's being recommended with a given product
-	"recommendation_type" : <string> #describes the type of recommendation (eg. Up-sell, Cross-Sell, Accessory)
-	"likes" : <int> #a count of the number of people who like the recommendation 
-}
+    {
+    	"id" : <int> #the id of a recommendation 
+		"product_id" : <int> #the id of the product in the recommendation 
+		"recommended_product_id" : <int> #the id of the product that's being recommended with a given product
+		"recommendation_type" : <string> #describes the type of recommendation (eg. Up-sell, Cross-Sell, Accessory)
+		"likes" : <int> #a count of the number of people who like the recommendation 
+    }
 
 ## What's featured in the project?
 
