@@ -48,6 +48,7 @@ Run the tests using `nosetests` and `coverage`
     GET  /recommendations/{id} - Retrieves a recommendation with a specific id
     POST /recommendations - Creates a recommendation in the datbase from the posted database
     PUT  /recommendations/{id} - Updates a recommendation in the database from the posted database
+    PUT  /recommendations/{id}/likes - Updates the count of likes for a given product id from the posted database
     DELETE /recommendations{id} - Removes a recommendation from the database that matches the id
 
 ## Valid content description of JSON file
