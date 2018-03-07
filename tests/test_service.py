@@ -13,6 +13,11 @@ import service
 PS4 = 1
 PS3 = 31
 CONTROLLER = 2
+ADAPTER = 3
+PS5 = 11
+MONSTER_HUNTER = 21
+DISPLAY = 22
+PS3 = 31
 
 
 class TestRecommendationservice(unittest.TestCase):
@@ -52,6 +57,28 @@ class TestRecommendationservice(unittest.TestCase):
     def test_get_recommendation_not_found(self):
         """ Read a Recommendation thats not found """
         resp = self.app.get('/recommendations/11')
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_recommendation_by_product_id(self):
+        """ Query Recommendations by the product_id """
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+        service.Recommendation(id=0, product_id=PS5, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+
+        resp = self.app.get('/recommendations/find_by_product_id/' + str(PS4))
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data), 3)
+        self.assertEqual(data[0]['product_id'], PS4)
+
+    def test_query_recommendation_by_product_id_fail(self):
+        """ Query Recommendations by the product_id that don't exist """
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
+
+        resp = self.app.get('/recommendations/find_by_product_id/' + str(PS5))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_get_recommendation_list(self):
