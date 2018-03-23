@@ -197,7 +197,7 @@ class TestRecommendationservice(unittest.TestCase):
         self.assertEqual(data['likes'], 3)
 
     def test_like_recommendation_not_found(self):
-        """ Increase a recommendation """
+        """ Increase a recommendation that can't be found"""
         service.Recommendation(0, 2, 4, "up-sell", 1).save()
         resp = self.app.put("/recommendations/2/likes", content_type='application/json')
         self.assertEquals(resp.status_code, status.HTTP_404_NOT_FOUND)
