@@ -1,5 +1,5 @@
-"""
-Recommendation Service
+"""Recommendation Service.
+
 This is an example of a recommendation service written with Python Flask
 It demonstrates how a RESTful service should be implemented.
 Paths
@@ -188,16 +188,18 @@ def delete_recommendations(id):
 # Action: Increase the number of Likes
 ######################################################################
 
+
 @app.route('/recommendations/<int:id>/likes', methods=['PUT'])
 def like_recommendation(id):
     """ Increase the number of likes for a recommendation with matching id """
-    recommendations = Recommendation.find(id)
-    if not recommendations:
-        message = {'error': 'Recommendation with product_id: %s was not found' %str(id)}
+    recommendation = Recommendation.find(id)
+    if not recommendation:
+        message = {'error': 'Recommendation with product_id: %s was not found' % str(id)}
         return_code = HTTP_404_NOT_FOUND
     else:
-        recommendations.likes += 1
-        message = recommendations.serialize()
+        recommendation.likes += 1
+        recommendation.save()
+        message = recommendation.serialize()
         return_code = HTTP_200_OK
 
     return jsonify(message), return_code
@@ -205,6 +207,8 @@ def like_recommendation(id):
 ######################################################################
 #   U T I L I T Y   F U N C T I O N S
 ######################################################################
+
+
 def initialize_logging(log_level=logging.INFO):
     """ Initialized the default logging to STDOUT """
     if not app.debug:
