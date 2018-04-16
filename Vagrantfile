@@ -10,7 +10,7 @@ Vagrant.configure(2) do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/xenial64"
   # set up network ip and port forwarding
-  config.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: "127.0.0.1"
+  config.vm.network "forwarded_port", guest: 8888, host: 8888, host_ip: "127.0.0.1"
   config.vm.network "private_network", ip: "192.168.33.10"
 
   config.vm.provider "virtualbox" do |vb|
@@ -40,11 +40,26 @@ Vagrant.configure(2) do |config|
     apt-get install -y git python-pip python-dev build-essential
     pip install --upgrade pip
     apt-get -y autoremove
-    # Make vi look nice
-    sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
-    # Install app dependencies
-    cd /vagrant
+    
+    # Install Bluemix_CLI
+    echo "\n******************************"
+    echo " Installing Bluemix CLI"
+    echo "******************************\n"
+    wget -q -O - https://clis.ng.bluemix.net/download/bluemix-cli/latest/linux64 | tar xzv
+    cd Bluemix_CLI/
+    ./install_bluemix_cli
+    cd ..
+    rm -fr Bluemix_CLI/
+    bluemix config --usage-stats-collect false
 
+    # Make vi look nice
+    sudo -H -u vagrant echo "colorscheme desert" > ~/.vimrc
+    
+    # Install app dependencies
+    echo "\n******************************"
+    echo " Installing App Dependencies"
+    echo "******************************\n"
+    cd /vagrant
     sudo pip install -r requirements.txt
   SHELL
 
