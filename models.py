@@ -17,6 +17,7 @@ recommendation_type (string) - the type of this recommendation, should be
 likes (int) - the count of how many people like this recommendation
 
 """
+
 import threading
 
 
