@@ -17,14 +17,17 @@ recommendation_type (string) - the type of this recommendation, should be
 likes (int) - the count of how many people like this recommendation
 
 """
+
 import os
 import json
 import logging
 import threading
+
 import pickle
 from redis import Redis
 from redis.exceptions import ConnectionError
 from cerberus import Validator
+
 
 #######################################################################
 # Recommendations Model for database
@@ -57,6 +60,8 @@ class Recommendation(object):
 
     # data = []
     index = 0
+    redis = None
+    logger = logging.getLogger(__name__)
 
     def __init__(self, id=0, product_id=0, recommended_product_id=0,
                  recommendation_type="", likes=0):
@@ -201,26 +206,32 @@ class Recommendation(object):
     def connect_to_redis(hostname, port, password):
         """ Connects to Redis and tests the connection """
         Recommendation.logger.info("Testing Connection to: %s:%s", hostname, port)
-        Recommendation.redis = Redis(host = hostname, port = port, password = password)
+        Recommendation.redis = Redis(host=hostname, port=port, password=password)
         try:
             Recommendation.redis.ping()
+            Recommendation.logger.info("Connection established")
         except ConnectionError:
+            Recommendation.logger.info("Connection Error from: %s:%s", hostname, port)
+
             Recommendation.redis = None
         return Recommendation.redis
 
     @staticmethod
-    def init_db(redis = None):
+    def init_db(redis=None):
+
         """
         Initialized Redis database connection
 
         This method will work in the following conditions:
-            1) In Bluemix with Redis bound through VCAP_SERVICES
-            2) With Redis running on the local server as with Travis CI
-            3) With Redis --link in a Docker container called 'redis'
-            4) Passing in your own Redis connection object
+          1) In Bluemix with Redis bound through VCAP_SERVICES
+          2) With Redis running on the local server as with Travis CI
+          3) With Redis --link in a Docker container called 'redis'
+          4) Passing in your own Redis connection object
+
         Exception:
         ----------
-            redis.ConnetionError - if ping() test failes
+          redis.ConnectionError - if ping() test fails
+
         """
         if redis:
             Recommendation.logger.info("Using client connection...")
