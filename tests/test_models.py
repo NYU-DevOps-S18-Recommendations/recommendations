@@ -7,7 +7,11 @@ Test cases can be run with:
 
 """
 
+import os
+import json
 import unittest
+from redis import Redis, ConnectionError
+from mock import patch
 from models import Recommendation, DataValidationError
 
 
@@ -20,6 +24,16 @@ MONSTER_HUNTER = 21
 DISPLAY = 22
 PS3 = 31
 
+VCAP_SERVICES = {
+    'rediscloud': [
+        {'credentials': {
+            'password': '',
+            'hostname': '127.0.0.1',
+            'port': '6379',
+            }
+        }
+    ]
+}
 
 ######################################################################
 #  T E S T   C A S E S
@@ -195,6 +209,29 @@ class TestRecommendations(unittest.TestCase):
         self.assertEqual(len(recommendations), 2)
         self.assertEqual(recommendations[0].recommended_product_id, CONTROLLER)
         self.assertEqual(recommendations[1].recommended_product_id, MONSTER_HUNTER)
+
+    def test_passing_connection(self):
+        """ Pass in the Redis connection """
+        Recommendation.init_db(Redis(host='127.0.0.1', port=6379))
+        self.assertIsNotNone(Recommendation.redis)
+
+    def test_passing_bad_connection(self):
+        """ Pass in a bad Redis connection """
+        self.assertRaises(ConnectionError, Recommendation.init_db, Redis(host='127.0.0.1', port=6300))
+        self.assertIsNone(Recommendation.redis)
+
+    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
+    def test_vcap_services(self):
+        """ Test if VCAP_SERVICES works """
+        Recommendation.init_db()
+        self.assertIsNotNone(Recommendation.redis)
+
+    @patch('redis.Redis.ping')
+    def test_redis_connection_error(self, ping_error_mock):
+        """ Test a Bad Redis connection """
+        ping_error_mock.side_effect = ConnectionError()
+        self.assertRaises(ConnectionError, Recommendation.init_db)
+        self.assertIsNone(Recommendation.redis)
 
 ######################################################################
 #   M A I N

@@ -18,7 +18,12 @@ likes (int) - the count of how many people like this recommendation
 
 """
 
+import os
+import json
+import logging
 import threading
+from redis import Redis
+from redis.exceptions import ConnectionError
 
 
 class DataValidationError(Exception):
@@ -35,6 +40,8 @@ class Recommendation(object):
     lock = threading.Lock()
     data = []
     index = 0
+    redis = None
+    logger = logging.getLogger(__name__)
 
     def __init__(self, id=0, product_id=0, recommended_product_id=0,
                  recommendation_type="", likes=0):
@@ -158,3 +165,66 @@ class Recommendation(object):
         """
         return [recommend for recommend in Recommendation.data
                 if recommend.likes >= likes]
+
+######################################################################
+#  R E D I S   D A T A B A S E   C O N N E C T I O N   M E T H O D S
+######################################################################
+
+    @staticmethod
+    def connect_to_redis(hostname, port, password):
+        """ Connects to Redis and tests the connection """
+        Recommendation.logger.info("Testing Connection to: %s:%s", hostname, port)
+        Recommendation.redis = Redis(host=hostname, port=port, password=password)
+        try:
+            Recommendation.redis.ping()
+            Recommendation.logger.info("Connection established")
+        except ConnectionError:
+            Recommendation.logger.info("Connection Error from: %s:%s", hostname, port)
+            Recommendation.redis = None
+        return Recommendation.redis
+
+    @staticmethod
+    def init_db(redis=None):
+        """
+        Initialized Redis database connection
+
+        This method will work in the following conditions:
+          1) In Bluemix with Redis bound through VCAP_SERVICES
+          2) With Redis running on the local server as with Travis CI
+          3) With Redis --link in a Docker container called 'redis'
+          4) Passing in your own Redis connection object
+
+        Exception:
+        ----------
+          redis.ConnectionError - if ping() test fails
+        """
+        if redis:
+            Recommendation.logger.info("Using client connection...")
+            Recommendation.redis = redis
+            try:
+                Recommendation.redis.ping()
+                Recommendation.logger.info("Connection established")
+            except ConnectionError:
+                Recommendation.logger.error("Client Connection Error!")
+                Recommendation.redis = None
+                raise ConnectionError('Could not connect to the Redis Service')
+            return
+        # Get the credentials from the Bluemix environment
+        if 'VCAP_SERVICES' in os.environ:
+            Recommendation.logger.info("Using VCAP_SERVICES...")
+            vcap_services = os.environ['VCAP_SERVICES']
+            services = json.loads(vcap_services)
+            creds = services['rediscloud'][0]['credentials']
+            Recommendation.logger.info("Conecting to Redis on host %s port %s",
+                            creds['hostname'], creds['port'])
+            Recommendation.connect_to_redis(creds['hostname'], creds['port'], creds['password'])
+        else:
+            Recommendation.logger.info("VCAP_SERVICES not found, checking localhost for Redis")
+            Recommendation.connect_to_redis('127.0.0.1', 6379, None)
+            if not Recommendation.redis:
+                Recommendation.logger.info("No Redis on localhost, looking for redis host")
+                Recommendation.connect_to_redis('redis', 6379, None)
+        if not Recommendation.redis:
+            # if you end up here, redis instance is down.
+            Recommendation.logger.fatal('*** FATAL ERROR: Could not connect to the Redis Service')
+            raise ConnectionError('Could not connect to the Redis Service')
