@@ -10,12 +10,34 @@ Test cases can be run with:
 import os
 import json
 import unittest
+<<<<<<< HEAD
 from redis import Redis, ConnectionError
 from mock import patch
 from models import Recommendation, DataValidationError
 from app.models import Recommendation, DataValidationError
 
 
+=======
+
+
+from app.models import Recommendation, DataValidationError
+
+
+from redis import Redis, ConnectionError
+from mock import patch
+
+#from models import Recommendation, DataValidationError
+
+
+
+from redis import Redis, ConnectionError
+from mock import patch
+
+#from models import Recommendation, DataValidationError
+
+
+
+>>>>>>> 2403992655c3e131b6fceb452463612eefc957ad
 # Product_id
 PS4 = 1
 CONTROLLER = 2
