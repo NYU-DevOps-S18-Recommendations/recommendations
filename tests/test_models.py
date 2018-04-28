@@ -7,8 +7,20 @@ Test cases can be run with:
 
 """
 
+import os
+import json
 import unittest
+
 from app.models import Recommendation, DataValidationError
+
+
+from redis import Redis, ConnectionError
+from mock import patch
+
+from models import Recommendation, DataValidationError
+
+
+
 
 # Product_id
 PS4 = 1
@@ -20,6 +32,18 @@ DISPLAY = 22
 PS3 = 31
 
 
+VCAP_SERVICES = {
+    'rediscloud': [
+        {'credentials': {
+            'password': '',
+            'hostname': '127.0.0.1',
+            'port': '6379',
+            }
+        }
+    ]
+}
+
+
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
@@ -29,6 +53,7 @@ class TestRecommendations(unittest.TestCase):
     """ Test Cases for Recommendations """
 
     def setUp(self):
+        Recommendation.init_db()
         Recommendation.remove_all()
 
     def test_create_a_recommendation(self):
@@ -165,8 +190,8 @@ class TestRecommendations(unittest.TestCase):
 
         recommendations = Recommendation.find_by_recommend_product_id(CONTROLLER)
         self.assertEqual(len(recommendations), 2)
-        self.assertEqual(recommendations[0].product_id, PS3)
-        self.assertEqual(recommendations[1].product_id, PS4)
+        self.assertEqual(recommendations[0].product_id, PS4)
+        self.assertEqual(recommendations[1].product_id, PS3)
 
     def test_find_by_recommend_type(self):
         """ Test find by recommend_type """
@@ -176,8 +201,8 @@ class TestRecommendations(unittest.TestCase):
 
         recommendations = Recommendation.find_by_recommend_type("accessory")
         self.assertEqual(len(recommendations), 2)
-        self.assertEqual(recommendations[0].product_id, PS3)
-        self.assertEqual(recommendations[1].product_id, PS4)
+        self.assertEqual(recommendations[0].product_id, PS4)
+        self.assertEqual(recommendations[1].product_id, PS3)
 
     def test_find_by_likes(self):
         """ Test find by likes """
@@ -191,9 +216,49 @@ class TestRecommendations(unittest.TestCase):
 
         # Test query for something
         recommendations = Recommendation.find_by_likes(5)
-        self.assertEqual(len(recommendations), 2)
+        self.assertEqual(len(recommendations), 1)
         self.assertEqual(recommendations[0].recommended_product_id, CONTROLLER)
-        self.assertEqual(recommendations[1].recommended_product_id, MONSTER_HUNTER)
+
+        recommendations = Recommendation.find_by_likes(10)
+        self.assertEqual(len(recommendations), 1)
+        self.assertEqual(recommendations[0].recommended_product_id, MONSTER_HUNTER)
+
+        #    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES).encode('utf8')})
+    @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
+    def test_vcap_services(self):
+        """ Test if VCAP_SERVICES works """
+        Recommendation.init_db()
+        self.assertIsNotNone(Recommendation.redis)
+
+    @patch('redis.Redis.ping')
+    def test_redis_connection_error(self, ping_error_mock):
+        """ Test a Bad Redis connection """
+        ping_error_mock.side_effect = ConnectionError()
+        self.assertRaises(ConnectionError, Recommendation.init_db)
+        self.assertIsNone(Recommendation.redis)
+
+    def test_passing_connection(self):
+        """ Pass in the Redis connection """
+        Recommendation.init_db(Redis(host='127.0.0.1', port=6379))
+        self.assertIsNotNone(Recommendation.redis)
+
+    def test_passing_bad_connection(self):
+        """ Pass in a bad Redis connection """
+        self.assertRaises(ConnectionError, Recommendation.init_db, Redis(host='127.0.0.1', port=6300))
+        self.assertIsNone(Recommendation.redis)
+
+    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
+    def test_vcap_services(self):
+        """ Test if VCAP_SERVICES works """
+        Recommendation.init_db()
+        self.assertIsNotNone(Recommendation.redis)
+
+    @patch('redis.Redis.ping')
+    def test_redis_connection_error(self, ping_error_mock):
+        """ Test a Bad Redis connection """
+        ping_error_mock.side_effect = ConnectionError()
+        self.assertRaises(ConnectionError, Recommendation.init_db)
+        self.assertIsNone(Recommendation.redis)
 
 ######################################################################
 #   M A I N
