@@ -10,12 +10,10 @@ Test cases can be run with:
 import os
 import json
 import unittest
-
 from redis import Redis, ConnectionError
 from mock import patch
-
 from models import Recommendation, DataValidationError
-
+from app.models import Recommendation, DataValidationError
 
 
 # Product_id
