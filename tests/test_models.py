@@ -7,11 +7,13 @@ Test cases can be run with:
 
 """
 
-import unittest
 import os
 import json
-from mock import patch
+import unittest
+
 from redis import Redis, ConnectionError
+from mock import patch
+
 from models import Recommendation, DataValidationError
 
 
@@ -25,10 +27,17 @@ MONSTER_HUNTER = 21
 DISPLAY = 22
 PS3 = 31
 
-VCAP_SERVICES = os.getenv('VCAP_SERVICES', None)
-if not VCAP_SERVICES:
-    VCAP_SERVICES = '{"rediscloud": [{"credentials": {' \
-        '"password": "", "hostname": "127.0.0.1", "port": "6379"}}]}'
+
+VCAP_SERVICES = {
+    'rediscloud': [
+        {'credentials': {
+            'password': '',
+            'hostname': '127.0.0.1',
+            'port': '6379',
+            }
+        }
+    ]
+}
 
 
 ######################################################################
@@ -212,6 +221,29 @@ class TestRecommendations(unittest.TestCase):
 
         #    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES).encode('utf8')})
     @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
+    def test_vcap_services(self):
+        """ Test if VCAP_SERVICES works """
+        Recommendation.init_db()
+        self.assertIsNotNone(Recommendation.redis)
+
+    @patch('redis.Redis.ping')
+    def test_redis_connection_error(self, ping_error_mock):
+        """ Test a Bad Redis connection """
+        ping_error_mock.side_effect = ConnectionError()
+        self.assertRaises(ConnectionError, Recommendation.init_db)
+        self.assertIsNone(Recommendation.redis)
+
+    def test_passing_connection(self):
+        """ Pass in the Redis connection """
+        Recommendation.init_db(Redis(host='127.0.0.1', port=6379))
+        self.assertIsNotNone(Recommendation.redis)
+
+    def test_passing_bad_connection(self):
+        """ Pass in a bad Redis connection """
+        self.assertRaises(ConnectionError, Recommendation.init_db, Redis(host='127.0.0.1', port=6300))
+        self.assertIsNone(Recommendation.redis)
+
+    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
     def test_vcap_services(self):
         """ Test if VCAP_SERVICES works """
         Recommendation.init_db()
