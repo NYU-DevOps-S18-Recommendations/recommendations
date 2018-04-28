@@ -8,8 +8,7 @@ Test cases can be run with:
 """
 
 import unittest
-from models import Recommendation, DataValidationError
-
+from app.models import Recommendation, DataValidationError
 
 # Product_id
 PS4 = 1
