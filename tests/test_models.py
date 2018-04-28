@@ -11,6 +11,7 @@ import os
 import json
 import unittest
 
+
 from app.models import Recommendation, DataValidationError
 
 
@@ -19,6 +20,12 @@ from mock import patch
 
 #from models import Recommendation, DataValidationError
 
+
+
+from redis import Redis, ConnectionError
+from mock import patch
+
+#from models import Recommendation, DataValidationError
 
 
 
