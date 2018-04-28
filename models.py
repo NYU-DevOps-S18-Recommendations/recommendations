@@ -147,9 +147,10 @@ class Recommendation(object):
         if isinstance(value, str):
             search_criteria = value.lower()
         else:
-            serach_criteria = value
+            search_criteria = value
         results = []
         for key in Recommendation.redis.keys():
+            print key
             if key != 'index':
                 data = pickle.loads(Recommendation.redis.get(key))
                 if isinstance(data[attribute], str):
