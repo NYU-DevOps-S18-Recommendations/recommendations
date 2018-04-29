@@ -7,20 +7,16 @@ $(function () {
     // Updates the form with data from the response
     function update_form_data(res) {
         $("#recommendation_id").val(res.id);
-        $("#rec_product_id").val(res.recommended_product_id);
+        $("#product_id").val(res.product_id);
+        $("#recommended_product_id").val(res.recommended_product_id);
         $("#recommendation_type").val(res.recommendation_type);
         $("#likes").val(res.likes);
-        if (res.available == true) {
-            $("#rec_available").val("true");
-        } else {
-            $("#rec_available").val("false");
-        }
     }
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#recommendation_id").val("");
-        $("#recommendation_product_id").val("");
+        $("#product_id").val("");
+        $("#recommended_product_id").val("");
         $("#recommendation_type").val("");
         $("#likes").val("");
     }
@@ -37,16 +33,16 @@ $(function () {
 
     $("#create-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
-        var recomendation_product_id = $("#recommendation_product_id").val();
+        var product_id = $("#product_id").val();
+        var recommended_product_id = $("#recommended_product_id").val();
         var recommendation_type = $("#recommendation_type").val();
-        //var recommendation_likes = $("#likes").val();
+        var recommendation_likes = $("#likes").val();
 
         var data = {
-            "recommendation_id": parseInt(recommendation_id),
-            "recomendation_product_id": parseInt(recommendation_product_id),
-            "recommendation_type": recommendation_type
-            //"recommendation_likes": parseInt(likes)
+            "product_id": parseInt(product_id),
+            "recommended_product_id": parseInt(recommended_product_id),
+            "recommendation_type": recommendation_type,
+            "likes": parseInt(recommendation_likes)
         };
 
         var ajax = $.ajax({
@@ -74,15 +70,16 @@ $(function () {
     $("#update-btn").click(function () {
 
         var recommendation_id = $("#recommendation_id").val();
-        var recomendation_product_id = $("#recommendation_product_id").val();
+        var product_id = $("#product_id").val();
+        var recommended_product_id = $("#recommended_product_id").val();
         var recommendation_type = $("#recommendation_type").val();
         var recommendation_likes = $("#likes").val();
 
         var data = {
-            "recommendation_id": parseInt(recommendation_id),
-            "recomendation_product_id": parseInt(recomendation_product_id),
-            "recommendation_type": recommendation_type
-            "recommendation_likes": parseInt(likes)
+            "product_id": parseInt(product_id),
+            "recommended_product_id": parseInt(recommended_product_id),
+            "recommendation_type": recommendation_type,
+            "likes": parseInt(recommendation_likes)
         };
 
         var ajax = $.ajax({
@@ -173,7 +170,8 @@ $(function () {
     $("#search-btn").click(function () {
 
         var recommendation_id = $("#recommendation_id").val();
-        var recomendation_product_id = $("#recommendation_product_id").val();
+        var product_id = $("#product_id").val();
+        var recommended_product_id = $("#recommended_product_id").val();
         var recommendation_type = $("#recommendation_type").val();
         var recommendation_likes = $("#likes").val();
 
@@ -183,27 +181,27 @@ $(function () {
             queryString += 'recommendation_type=' + recommendation_type
         }
 
-        if (recommendation_id) {
+        if (product_id) {
             if (queryString.length > 0) {
-                queryString += '&recommendation_id=' + recommendation_id
+                queryString += '&product_id=' + product_id
             } else {
-                queryString += 'recommendation_id=' + recommendation_id
+                queryString += 'product_id=' + product_id
             }
         }
 
-        if (recommendation_product_id) {
+        if (recommended_product_id) {
             if (queryString.length > 0) {
-                queryString += '&recommendation_product_id=' + recommendation_product_id
+                queryString += '&recommended_product_id=' + recommended_product_id
             } else {
-                queryString += 'recommendation_product_id=' + recommendation_product_id
+                queryString += 'recommended_product_id=' + recommended_product_id
             }
         }
 
         if (recommendation_likes) {
             if (queryString.length > 0) {
-                queryString += '&recommendation_likes=' + recommendation_likes
+                queryString += '&likes=' + recommendation_likes
             } else {
-                queryString += 'recommendation_likes=' + recommendation_likes
+                queryString += 'likes=' + recommendation_likes
             }
         }
 
@@ -219,14 +217,21 @@ $(function () {
             $("#search_results").empty();
             $("#search_results").append('<table class="table-striped">');
             var header = '<tr>'
-            header += '<th style="width:10%">Recommendation_ID</th>'
-            header += '<th style="width:40%">Recommendation_Product_ID</th>'
-            header += '<th style="width:40%">Recommendation_Type</th>'
-            header += '<th style="width:10%">Recommendation_Likes</th></tr>'
+            header += '<th style="width:20%">ID</th>'
+            header += '<th style="width:30%">Product ID</th>'
+            header += '<th style="width:30%">Reommended ID</th>'
+            header += '<th style="width:30%">Recommendation Type</th>'
+            header += '<th style="width:30%">Likes</th></tr>'
             $("#search_results").append(header);
             for(var i = 0; i < res.length; i++) {
                 recommendation = res[i];
-                var row = "<tr><td>"+recommendation.id+"</td><td>"+recommendation.recommended_product_id+"</td><td>"+recommendation.recommendation_type+"</td><td>"+recommendation.likes+"</td></tr>";
+                var row = "<tr><td>"  + 
+                            recommendation.id + "</td><td>" + 
+                            recommendation.product_id + "</td><td>" +
+                            recommendation.recommended_product_id + "</td><td>" + 
+                            recommendation.recommendation_type + "</td><td>" +
+                            recommendation.likes + 
+                          "</td></tr>";
                 $("#search_results").append(row);
             }
 
@@ -249,17 +254,10 @@ $(function () {
     $("#like-btn").click(function () {
 
         var recommendation_id = $("#recommendation_id").val();
-        // var recomendation_product_id = $("#recommendation_product_id").val();
-        // var recommendation_type = $("#recommendation_type").val();
-        // var recommendation_likes = $("#likes").val();
 
         var data = {
             "recommendation_id": parseInt(recommendation_id),
-            // "recomendation_product_id": parseInt(recommendation_product_id),
-            // "recommendation_type": recommendation_type
-            // /"recommendation_likes": parseInt(likes)
         };
-
 
         var ajax = $.ajax({
                 type: "PUT",

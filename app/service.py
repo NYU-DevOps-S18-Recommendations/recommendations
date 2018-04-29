@@ -208,10 +208,16 @@ def like_recommendation(id):
 ######################################################################
 
 
+@app.before_first_request
+def init_db(redis=None):
+    """ Initlaize the model """
+    Recommendation.init_db(redis)
+
+
 def initialize_logging(log_level=logging.INFO):
     """ Initialized the default logging to STDOUT """
     if not app.debug:
-        print 'Setting up logging...'
+        print "Setting up logging..."
         # Set up default logging for submodules to use STDOUT
         # datefmt='%m/%d/%Y %I:%M:%S %p'
         fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
@@ -227,16 +233,3 @@ def initialize_logging(log_level=logging.INFO):
         app.logger.addHandler(handler)
         app.logger.setLevel(log_level)
         app.logger.info('Logging handler established')
-
-
-######################################################################
-#   M A I N
-######################################################################
-if __name__ == "__main__":
-    print "*********************************"
-    print " RECOMMENDATIONS  SERVICE "
-    print "*********************************"
-    initialize_logging()
-    # dummy data for testing
-
-    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
