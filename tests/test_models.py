@@ -183,8 +183,8 @@ class TestRecommendations(unittest.TestCase):
 
         recommendations = Recommendation.find_by_recommend_product_id(CONTROLLER)
         self.assertEqual(len(recommendations), 2)
-        self.assertEqual(recommendations[0].product_id, PS4)
-        self.assertEqual(recommendations[1].product_id, PS3)
+        self.assertEqual(recommendations[0].recommended_product_id, CONTROLLER)
+        self.assertEqual(recommendations[1].recommended_product_id, CONTROLLER)
 
     def test_find_by_recommend_type(self):
         """ Test find by recommend_type """
@@ -194,8 +194,8 @@ class TestRecommendations(unittest.TestCase):
 
         recommendations = Recommendation.find_by_recommend_type("accessory")
         self.assertEqual(len(recommendations), 2)
-        self.assertEqual(recommendations[0].product_id, PS4)
-        self.assertEqual(recommendations[1].product_id, PS3)
+        self.assertEqual(recommendations[0].recommendation_type, "accessory")
+        self.assertEqual(recommendations[1].recommendation_type, "accessory")
 
     def test_find_by_likes(self):
         """ Test find by likes """
