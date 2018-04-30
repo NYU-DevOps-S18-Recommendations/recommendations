@@ -3,7 +3,7 @@ import json
 import logging
 from flask_api import status    # HTTP Status Codes
 
-import service
+from app import service
 
 ######################################################################
 #  T E S T   C A S E S

@@ -54,8 +54,8 @@ class Recommendation(object):
         'product_id': {'type': 'integer', 'required': True},
         'recommended_product_id': {'type': 'integer', 'required': True},
         'recommendation_type': {'type': 'string', 'required': True},
-        'likes':{'type': 'integer'}
-        }
+        'likes': {'type': 'integer'}
+    }
     __validator = Validator(schema)
 
     # data = []
@@ -79,7 +79,7 @@ class Recommendation(object):
         """
         Saves a Recommendation to the data store
         """
-        if self.product_id == None:
+        if self.product_id is None:
             raise DataValidationError('product_id is not set')
         if self.id == 0:
             self.id = Recommendation.__next_index()
@@ -105,7 +105,7 @@ class Recommendation(object):
             data (dict): A dictionary containing the Recommendation data
         """
         if isinstance(data, dict) and Recommendation.__validator.validate(data):
-            self.id = data['id']
+            # self.id = data['id']
             self.product_id = data['product_id']
             self.recommended_product_id = data['recommended_product_id']
             self.recommendation_type = data['recommendation_type']
@@ -155,7 +155,6 @@ class Recommendation(object):
             search_criteria = value
         results = []
         for key in Recommendation.redis.keys():
-            print key
             if key != 'index':
                 data = pickle.loads(Recommendation.redis.get(key))
                 if isinstance(data[attribute], str):
@@ -251,7 +250,7 @@ class Recommendation(object):
             services = json.loads(vcap_services)
             creds = services['rediscloud'][0]['credentials']
             Recommendation.logger.info("Conecting to Redis on host %s port %s",
-                            creds['hostname'], creds['port'])
+                                       creds['hostname'], creds['port'])
             Recommendation.connect_to_redis(creds['hostname'], creds['port'], creds['password'])
         else:
             Recommendation.logger.info("VCAP_SERVICES not found, checking localhost for Redis")
