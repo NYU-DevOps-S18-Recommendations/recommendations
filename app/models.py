@@ -58,10 +58,7 @@ class Recommendation(object):
     }
     __validator = Validator(schema)
 
-    # data = []
-    index = 0
-    redis = None
-    logger = logging.getLogger(__name__)
+
 
     def __init__(self, id=0, product_id=0, recommended_product_id=0,
                  recommendation_type="", likes=0):
