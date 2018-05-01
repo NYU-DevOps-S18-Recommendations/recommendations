@@ -28,12 +28,26 @@ from redis import Redis
 from redis.exceptions import ConnectionError
 from cerberus import Validator
 
+# VCAP_SERVICES = {
+#     "rediscloud": [
+#         {
+#             "credentials": {
+#                 "hostname": "pub-redis-17985.dal-05.1.sl.garantiadata.com",
+#                 "password": "wK9Zz5aqaEEaHW0Z1VN1c7khZB61Slk7",
+#                 "port": "17985"
+#             },
+#         }
+#     ]
+# }
+
+# os.environ['VCAP_SERVICES'] = json.dumps(VCAP_SERVICES)
 
 #######################################################################
 # Recommendations Model for database
 #   This class must be initialized with use_db(redis) before using
 #   where redis is a value connection to a Redis database
 #######################################################################
+
 
 class DataValidationError(Exception):
     """ Used for a data validation errors when deserializing."""
@@ -57,8 +71,6 @@ class Recommendation(object):
         'likes': {'type': 'integer'}
     }
     __validator = Validator(schema)
-
-
 
     def __init__(self, id=0, product_id=0, recommended_product_id=0,
                  recommendation_type="", likes=0):
