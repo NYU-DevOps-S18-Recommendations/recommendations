@@ -35,6 +35,7 @@ class TestRecommendationservice(unittest.TestCase):
 
     def setUp(self):
         """ Runs before each test """
+        service.Recommendation.init_db()
         service.Recommendation.remove_all()
         self.app = service.app.test_client()
 

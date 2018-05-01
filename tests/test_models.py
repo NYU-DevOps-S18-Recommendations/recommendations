@@ -217,7 +217,7 @@ class TestRecommendations(unittest.TestCase):
         self.assertEqual(recommendations[0].recommended_product_id, MONSTER_HUNTER)
 
         #    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES).encode('utf8')})
-    @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
+    # @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
     def test_vcap_services(self):
         """ Test if VCAP_SERVICES works """
         Recommendation.init_db()
@@ -232,7 +232,8 @@ class TestRecommendations(unittest.TestCase):
 
     def test_passing_connection(self):
         """ Pass in the Redis connection """
-        Recommendation.init_db(Redis(host='127.0.0.1', port=6379))
+        # Recommendation.init_db(Redis(host='127.0.0.1', port=6379))
+        Recommendation.init_db()
         self.assertIsNotNone(Recommendation.redis)
 
     def test_passing_bad_connection(self):
@@ -240,7 +241,7 @@ class TestRecommendations(unittest.TestCase):
         self.assertRaises(ConnectionError, Recommendation.init_db, Redis(host='127.0.0.1', port=6300))
         self.assertIsNone(Recommendation.redis)
 
-    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
+    # @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
     def test_vcap_services(self):
         """ Test if VCAP_SERVICES works """
         Recommendation.init_db()
