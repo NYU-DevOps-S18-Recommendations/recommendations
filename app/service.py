@@ -17,6 +17,7 @@ from app.models import Recommendation
 from . import app
 import logging
 from flask import Flask, Response, jsonify, request, json, url_for, make_response
+from flask_api import status
 from models import Recommendation, DataValidationError
 
 # Pull options from environment
@@ -202,6 +203,16 @@ def like_recommendation(id):
         return_code = HTTP_200_OK
 
     return jsonify(message), return_code
+
+######################################################################
+# DELETE ALL RECOMMENDATIONS DATA (for testing only)
+######################################################################
+
+@app.route('/recommendations/reset', methods=['DELETE'])
+def recommendations_reset():
+    """ Removes all recommendations from the database """
+    Recommendation.remove_all()
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 #   U T I L I T Y   F U N C T I O N S
