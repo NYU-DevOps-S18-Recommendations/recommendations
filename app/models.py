@@ -28,12 +28,26 @@ from redis import Redis
 from redis.exceptions import ConnectionError
 from cerberus import Validator
 
+VCAP_SERVICES = {
+    "rediscloud": [
+        {
+            "credentials": {
+                "hostname": "pub-redis-17985.dal-05.1.sl.garantiadata.com",
+                "password": "wK9Zz5aqaEEaHW0Z1VN1c7khZB61Slk7",
+                "port": "17985"
+            },
+        }
+    ]
+}
+
+os.environ['VCAP_SERVICES'] = json.dumps(VCAP_SERVICES)
 
 #######################################################################
 # Recommendations Model for database
 #   This class must be initialized with use_db(redis) before using
 #   where redis is a value connection to a Redis database
 #######################################################################
+
 
 class DataValidationError(Exception):
     """ Used for a data validation errors when deserializing."""
@@ -54,14 +68,9 @@ class Recommendation(object):
         'product_id': {'type': 'integer', 'required': True},
         'recommended_product_id': {'type': 'integer', 'required': True},
         'recommendation_type': {'type': 'string', 'required': True},
-        'likes':{'type': 'integer'}
-        }
+        'likes': {'type': 'integer'}
+    }
     __validator = Validator(schema)
-
-    # data = []
-    index = 0
-    redis = None
-    logger = logging.getLogger(__name__)
 
     def __init__(self, id=0, product_id=0, recommended_product_id=0,
                  recommendation_type="", likes=0):
@@ -79,7 +88,7 @@ class Recommendation(object):
         """
         Saves a Recommendation to the data store
         """
-        if self.product_id == None:
+        if self.product_id is None:
             raise DataValidationError('product_id is not set')
         if self.id == 0:
             self.id = Recommendation.__next_index()
@@ -105,7 +114,7 @@ class Recommendation(object):
             data (dict): A dictionary containing the Recommendation data
         """
         if isinstance(data, dict) and Recommendation.__validator.validate(data):
-            self.id = data['id']
+            # self.id = data['id']
             self.product_id = data['product_id']
             self.recommended_product_id = data['recommended_product_id']
             self.recommendation_type = data['recommendation_type']
@@ -155,7 +164,6 @@ class Recommendation(object):
             search_criteria = value
         results = []
         for key in Recommendation.redis.keys():
-            print key
             if key != 'index':
                 data = pickle.loads(Recommendation.redis.get(key))
                 if isinstance(data[attribute], str):
@@ -251,7 +259,7 @@ class Recommendation(object):
             services = json.loads(vcap_services)
             creds = services['rediscloud'][0]['credentials']
             Recommendation.logger.info("Conecting to Redis on host %s port %s",
-                            creds['hostname'], creds['port'])
+                                       creds['hostname'], creds['port'])
             Recommendation.connect_to_redis(creds['hostname'], creds['port'], creds['password'])
         else:
             Recommendation.logger.info("VCAP_SERVICES not found, checking localhost for Redis")
