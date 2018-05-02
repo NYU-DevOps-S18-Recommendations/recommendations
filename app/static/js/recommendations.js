@@ -6,7 +6,7 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#recommendation_id").val(res.id);
+        $("#id").val(res.id);
         $("#product_id").val(res.product_id);
         $("#recommended_product_id").val(res.recommended_product_id);
         $("#recommendation_type").val(res.recommendation_type);
@@ -69,7 +69,7 @@ $(function () {
 
     $("#update-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
         var product_id = $("#product_id").val();
         var recommended_product_id = $("#recommended_product_id").val();
         var recommendation_type = $("#recommendation_type").val();
@@ -87,7 +87,7 @@ $(function () {
                 url: "/recommendations/" + recommendation_id,
                 contentType:"application/json",
                 data: JSON.stringify(data)
-            })
+        });
 
         ajax.done(function(res){
             update_form_data(res)
@@ -106,14 +106,14 @@ $(function () {
 
     $("#retrieve-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
 
         var ajax = $.ajax({
             type: "GET",
             url: "/recommendations/" + recommendation_id,
             contentType:"application/json",
             data: ''
-        })
+        });
 
         ajax.done(function(res){
             //alert(res.toSource())
@@ -134,7 +134,7 @@ $(function () {
 
     $("#delete-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
@@ -160,7 +160,7 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#recommendation_id").val("");
+        $("#id").val("");
         clear_form_data()
     });
 
@@ -170,13 +170,13 @@ $(function () {
 
     $("#search-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
         var product_id = $("#product_id").val();
         var recommended_product_id = $("#recommended_product_id").val();
         var recommendation_type = $("#recommendation_type").val();
         var recommendation_likes = $("#likes").val();
 
-        var queryString = ""
+        var queryString = "";
 
         if (recommendation_type) {
             queryString += 'recommendation_type=' + recommendation_type
@@ -226,12 +226,12 @@ $(function () {
             $("#search_results").append(header);
             for(var i = 0; i < res.length; i++) {
                 recommendation = res[i];
-                var row = "<tr><td>"  + 
-                            recommendation.id + "</td><td>" + 
+                var row = "<tr><td>"  +
+                            recommendation.id + "</td><td>" +
                             recommendation.product_id + "</td><td>" +
-                            recommendation.recommended_product_id + "</td><td>" + 
+                            recommendation.recommended_product_id + "</td><td>" +
                             recommendation.recommendation_type + "</td><td>" +
-                            recommendation.likes + 
+                            recommendation.likes +
                           "</td></tr>";
                 $("#search_results").append(row);
             }
@@ -254,10 +254,10 @@ $(function () {
 
     $("#like-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
 
         var data = {
-            "recommendation_id": parseInt(recommendation_id),
+            "id": parseInt(recommendation_id),
         };
 
         var ajax = $.ajax({
