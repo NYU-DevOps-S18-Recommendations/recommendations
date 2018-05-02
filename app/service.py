@@ -166,7 +166,7 @@ def list_recommendations():
         recommendations = Recommendation.all()
 
     results = [recommendation.serialize() for recommendation in recommendations]
-    return jsonify(results), HTTP_200_OK
+    return make_response(jsonify(results), HTTP_200_OK)
 
 def query_recommendations_by_product_id(product_id):
     """
