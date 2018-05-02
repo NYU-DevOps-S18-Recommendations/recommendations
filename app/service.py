@@ -241,6 +241,10 @@ def update_recommendations(id):
 
 
 @app.route('/recommendations/<int:id>', methods=['DELETE'])
+# @ns.route('/recommendations/<int:id>')
+@ns.doc('delete_a_recommendation')
+@ns.param('id', 'The unique id assigned internally by service')
+@ns.response(204, 'Recommendation data was not valid')
 def delete_recommendations(id):
     """ Removes a recommendation from the database that matches the id """
     recommendation = Recommendation.find(id)
@@ -254,6 +258,11 @@ def delete_recommendations(id):
 
 
 @app.route('/recommendations/<int:id>/likes', methods=['PUT'])
+# @ns.route('/recommendations/<int:id>/likes')
+@ns.doc('like_a_recommendation')
+@ns.param('id', 'The unique id assigned internally by service')
+@ns.response(200, 'The recommendation is liked')
+@ns.response(404, 'Recommendation data was not valid')
 def like_recommendation(id):
     """ Increase the number of likes for a recommendation with matching id """
     recommendation = Recommendation.find(id)
