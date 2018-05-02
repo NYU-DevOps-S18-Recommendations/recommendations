@@ -33,8 +33,6 @@ HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
-app = Flask(__name__)
-
 ######################################################################
 # Configure Swagger before initializing it
 ######################################################################
