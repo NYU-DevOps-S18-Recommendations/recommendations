@@ -151,6 +151,9 @@ def list_recommendations():
             description: A list of recommendations
             schema:
                 type: list
+        400:
+            description: Recommendation was not found
+
     """
     results = []
     product_id = request.args.get('product_id')
