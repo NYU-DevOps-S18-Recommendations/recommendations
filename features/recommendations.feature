@@ -28,7 +28,7 @@ Scenario: Create a recommendation
 
 Scenario: Update a recommendation
   When I visit the "Home Page"
-  And I set the "Recommendation_ID" to "3"
+  And I set the "Id" to "3"
   And I press the "Retrieve" button
   Then I should see "11" in the "Product_ID" field
   Then I should see "21" in the "Recommended_Product_ID" field
@@ -36,7 +36,7 @@ Scenario: Update a recommendation
   When I change "Product_ID" to "12"
   And I press the "Update" button
   Then I should see the message "Success"
-  When I set the "Recommendation_ID" to "3"
+  When I set the "Id" to "3"
   And I press the "Retrieve" button
   Then I should see "12" in the "Product_ID" field
   When I press the "Search" button
