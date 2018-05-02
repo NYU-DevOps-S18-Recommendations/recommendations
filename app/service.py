@@ -33,8 +33,6 @@ HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
-app = Flask(__name__)
-
 ######################################################################
 # Configure Swagger before initializing it
 ######################################################################
@@ -109,11 +107,51 @@ def index():
 ######################################################################
 # LIST ALL & QUERY recommendations
 ######################################################################
-
-
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
-    """ Retrieves a list of recommendations from the database """
+    """
+    Retrieves a list of recommendations from the database
+    This endpoint will return all recommendations unless it is given
+    a query parameter
+    ----
+    tags:
+        - Recommendations
+    description: List recommendations from the database
+    parameters:
+        - in: query
+          name: product_id
+          type: integer
+          descrtiption: query the recommendation that matches the product_id
+        - in: query
+          name: recommendation_type
+          type: string
+          description: query the recommendation that matches the reommendation_type
+        - in: query
+          name: recommended_product_id
+          type: integer
+          description: query the recommendation that matches the recommended_product_id
+    definitions:
+        Recommendation:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: the unique id of a recommendation
+                recommendation type:
+                    type: string
+                    description: type of the recommendation
+                recommended product id:
+                    type: integer
+                    description: id of a recommended product
+                likes:
+                    type: integer
+                    description: the count of how many people like this recommendation
+    responses:
+        200:
+            description: A list of recommendations
+            schema:
+                type: list
+    """
     results = []
     product_id = request.args.get('product_id')
     recommendation_type = request.args.get('recommendation_type')
@@ -132,7 +170,9 @@ def list_recommendations():
     return jsonify(message), return_code
 
 def query_recommendations_by_product_id(product_id):
-    """ Query a recommendation from the database that have the same product_id """
+    """
+    Query a recommendation from the database that have the same product_id
+    """
     recommendations = Recommendation.find_by_product_id(int(product_id))
     if len(recommendations) > 0:
         message = [recommendation.serialize()
@@ -232,11 +272,24 @@ def update_recommendations(id):
 ######################################################################
 # DELETE A recommendation
 ######################################################################
-
-
 @app.route('/recommendations/<int:id>', methods=['DELETE'])
 def delete_recommendations(id):
-    """ Removes a recommendation from the database that matches the id """
+    """ Removes a recommendation from the database that matches the id
+    This endpoint will delete a recommendation based on its id
+    ---
+    tags:
+        - Recommendations
+    description: Delete a recommendation from the database
+    parameters:
+        - name: id
+          in: path
+          description: ID of a recommendation to delete
+          type: integer
+          required: true
+    responses:
+        204:
+            description: Recommendation deleted
+    """
     recommendation = Recommendation.find(id)
     if recommendation:
         recommendation.delete()
