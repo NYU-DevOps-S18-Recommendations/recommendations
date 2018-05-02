@@ -16,6 +16,16 @@ Scenario: The server is running
     Then I should see "Recommendation RESTful Service" in the title
     And I should not see "404 Not Found"
 
+Scenario: Create a recommendation
+  When I visit the "Home Page"
+  And I set the "Id" to "6"
+  And I set the "Product_ID" to "21"
+  And I set the "Recommended_Product_ID" to "51"
+  And I choose the "Recommendation_Type" to be "Cross-sell"
+  And I set the "Likes" to "0"
+  And I press the "Create" button
+  Then I should see the message "Success"
+
 Scenario: Update a recommendation
   When I visit the "Home Page"
   And I set the "Id" to "3"

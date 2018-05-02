@@ -8,7 +8,7 @@ import requests
 from behave import *
 from compare import expect, ensure
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions
 
 WAIT_SECONDS = 30
@@ -50,11 +50,17 @@ def step_impl(context, message):
 
 @when(u'I set the "{element_name}" to "{text_string}"')
 def step_impl(context, element_name, text_string):
-    element_id = 'recommendation_' + element_name.lower()
+    element_id = element_name.lower()
     element = context.driver.find_element_by_id(element_id)
     element.clear()
     element.send_keys(text_string)
-    
+
+@when(u'I choose the "{element_name}" to be "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = element_name.lower()
+    select = Select(context.driver.find_element_by_id(element_id))
+    select.select_by_visible_text(text_string)
+
 ##################################################################
 # This code works because of the following naming convention:
 # The buttons have an id in the html hat is the button text
