@@ -99,9 +99,6 @@ def internal_server_error(error):
 @app.route('/')
 def index():
     """ Return something useful by default """
-    # return jsonify(name='Recommendations REST API Service',
-    #                version='1.0',
-    #                url=url_for('list_recommendations', _external=True)), HTTP_200_OK
     return app.send_static_file('index.html')
 
 ######################################################################
@@ -166,6 +163,7 @@ def list_recommendations():
     elif recommended_product_id:
         message, return_code = query_recommendations_by_recommended_product_id(recommended_product_id)
     else:
+        recommendation = Recommendation.find(id)
         results = Recommendation.all()
         message = [recommendation.serialize() for recommendation in results]
         return_code = HTTP_200_OK
