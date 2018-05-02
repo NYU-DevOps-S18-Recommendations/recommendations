@@ -37,5 +37,10 @@ Scenario: Delete a recommendation
     When I press the "Delete" button
     Then I should see the message "Recommendation successfully deleted!"
 
-
-
+Scenario: Read a recommendation
+    When I visit the "Home Page"
+    And I set the "Id" to "2"
+    When I press the "Retrieve" button
+    Then I should see "1" in the "Product_ID" field
+    Then I should see "2" in the "Recommended_Product_ID" field
+    Then I should see "Accessory" in the "Recommendation_Type" field
