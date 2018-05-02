@@ -21,6 +21,8 @@ Scenario: Update a recommendation
   And I set the "Id" to "3"
   And I press the "Retrieve" button
   Then I should see "11" in the "Product_ID" field
+  Then I should see "21" in the "Recommended_Product_ID" field
+  Then I should see "Cross-sell" in the "Recommendation_Type" field
   When I change "Product_ID" to "12"
   And I press the "Update" button
   Then I should see the message "Success"
