@@ -44,7 +44,7 @@ api = Api(app,
          )
 
 # This namespace is the start of the path i.e., /recommendations
-ns = api.namespace('recommendations', description='Recommendations operations')
+ns = api.namespace('', description='Recommendations operations')
 
 # Define the model so that the docs reflect what can be sent
 recommendations_model = api.model('Recommendations', {
@@ -104,8 +104,11 @@ def index():
 ######################################################################
 # LIST ALL & QUERY recommendations
 ######################################################################
-
-
+@ns.doc('list_recommendations')
+@ns.param('product_id', 'List Recommendations by Product ID')
+@ns.param('recommendation_type', 'List Recommendations by Recommendation Type')
+@ns.param('recommended_product_id', 'List Recommendations by Recommended Product ID')
+# @ns.route('/recommendations')
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
     """ Retrieves a list of recommendations from the database """
@@ -126,6 +129,9 @@ def list_recommendations():
 
     return jsonify(message), return_code
 
+@ns.doc('query_recommendations_by_product_id')
+@ns.response(404, 'Recommendation not found')
+@ns.param('product_id', 'Search Recommendations by Product ID')
 def query_recommendations_by_product_id(product_id):
     """ Query a recommendation from the database that have the same product_id """
     recommendations = Recommendation.find_by_product_id(int(product_id))
@@ -140,6 +146,9 @@ def query_recommendations_by_product_id(product_id):
 
     return message, return_code
 
+@ns.doc('query_recommendations_by_recommendation_type')
+@ns.response(404, 'Recommendation not found')
+@ns.param('recommendation_type', 'Search Recommendations by Recommendation Type')
 def query_recommendations_by_recommendation_type(recommendation_type):
     """ Query a recommendation from the database that have the same recommendation type """
     recommendations = Recommendation.find_by_recommend_type(str(recommendation_type))
@@ -154,6 +163,9 @@ def query_recommendations_by_recommendation_type(recommendation_type):
 
     return message, return_code
 
+@ns.doc('query_recommendations_by_recommended_product_id')
+@ns.response(404, 'Recommendation not found')
+@ns.param('recommended_product_id', 'Search Recommendations by Recommended Product ID')
 def query_recommendations_by_recommended_product_id(recommended_product_id):
     """ Query a recommendation from the database that have the same recommended product id """
     recommendations = Recommendation.find_by_recommend_product_id(int(recommended_product_id))
@@ -171,8 +183,8 @@ def query_recommendations_by_recommended_product_id(recommended_product_id):
 ######################################################################
 # RETRIEVE A recommendation
 ######################################################################
-
-
+@ns.doc('get_recommendations')
+@ns.response(404, 'Recommendation not found')
 @app.route('/recommendations/<int:id>', methods=['GET'])
 def get_recommendations(id):
     """ Retrieves a recommendation with a specific id """
@@ -189,8 +201,9 @@ def get_recommendations(id):
 ######################################################################
 # ADD A NEW recommendation
 ######################################################################
-
-
+@ns.doc('create_recommendations')
+@ns.expect(recommendations_model)
+@ns.response(400, 'The data was not valid')
 @app.route('/recommendations', methods=['POST'])
 def create_recommendations():
     """ Creates a recommendation in the database from the posted database """
@@ -206,8 +219,6 @@ def create_recommendations():
 ######################################################################
 # UPDATE AN EXISTING RECOMMENDATION
 ######################################################################
-
-
 @app.route('/recommendations/<int:id>', methods=['PUT'])
 def update_recommendations(id):
     """ Updates a recommendation in the database fom the posted database """
