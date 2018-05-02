@@ -3,6 +3,7 @@ Recommendation Steps
 Steps file for recommendation.feature
 """
 from os import getenv
+import time
 import json
 import requests
 from behave import *
@@ -12,12 +13,13 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions
 
 WAIT_SECONDS = 30
-BASE_URL = getenv('BASE_URL', 'http://localhost:8888/')
+BASE_URL = getenv('BASE_URL', 'http://nyu-recommendation-service-s18.mybluemix.net')
 
 @given(u'the following recommendations')
 def step_impl(context):
     """ Delete all recommendations and load new ones """
     headers = {'Content-Type': 'application/json'}
+    time.sleep(1)
     context.resp = requests.delete(context.base_url + '/recommendations/reset', headers=headers)
     expect(context.resp.status_code).to_equal(204)
     create_url = context.base_url + '/recommendations'
