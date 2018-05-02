@@ -25,16 +25,10 @@ DISPLAY = 22
 PS3 = 31
 
 
-VCAP_SERVICES = {
-    'rediscloud': [
-        {'credentials': {
-            'password': '',
-            'hostname': '127.0.0.1',
-            'port': '6379',
-            }
-        }
-    ]
-}
+VCAP_SERVICES = os.getenv('VCAP_SERVICES', None)
+if not VCAP_SERVICES:
+    VCAP_SERVICES = '{"rediscloud": [{"credentials": {' \
+        '"password": "", "hostname": "127.0.0.1", "port": "6379"}}]}'
 
 
 ######################################################################
@@ -217,7 +211,7 @@ class TestRecommendations(unittest.TestCase):
         self.assertEqual(recommendations[0].recommended_product_id, MONSTER_HUNTER)
 
         #    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES).encode('utf8')})
-    # @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
+    @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
     def test_vcap_services(self):
         """ Test if VCAP_SERVICES works """
         Recommendation.init_db()
@@ -242,6 +236,7 @@ class TestRecommendations(unittest.TestCase):
         self.assertIsNone(Recommendation.redis)
 
     # @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES)})
+    @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
     def test_vcap_services(self):
         """ Test if VCAP_SERVICES works """
         Recommendation.init_db()
