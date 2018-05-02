@@ -54,3 +54,14 @@ Scenario: Read a recommendation
     Then I should see "1" in the "Product_ID" field
     Then I should see "2" in the "Recommended_Product_ID" field
     Then I should see "Accessory" in the "Recommendation_Type" field
+
+Scenario: Like a recommendation
+    When I visit the "Home Page"
+    And I set the "Id" to "2"
+    When I press the "Retrieve" button
+    Then I should see "1" in the "Product_ID" field
+    Then I should see "2" in the "Recommended_Product_ID" field
+    Then I should see "Accessory" in the "Recommendation_Type" field
+    Then I should see "1" in the "Likes" field
+    When I press the "Like" button
+    Then I should see "2" in the "Likes" field
