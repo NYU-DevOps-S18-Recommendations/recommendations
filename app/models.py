@@ -144,16 +144,13 @@ class Recommendation(object):
     def __find_by(attribute, value):
         """ Generic Query that finds a key with a specific value """
         Recommendation.logger.info('Processing %s query for %s', attribute, value)
-        if isinstance(value, str):
-            search_criteria = value.lower()
-        else:
-            search_criteria = value
+        search_criteria = value
         results = []
         for key in Recommendation.redis.keys():
             if key != 'index':
                 data = pickle.loads(Recommendation.redis.get(key))
                 if isinstance(data[attribute], str):
-                    test_value = data[attribute].lower()
+                    test_value = data[attribute]
                 else:
                     test_value = data[attribute]
                 if test_value == search_criteria:

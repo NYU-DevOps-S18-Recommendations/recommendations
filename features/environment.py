@@ -5,8 +5,8 @@ import os
 from behave import *
 from selenium import webdriver
 
-# BASE_URL = os.getenv('BASE_URL', 'http://localhost:8888')
-BASE_URL = os.getenv('BASE_URL', 'http://nyu-recommendation-service-s18.mybluemix.net')
+BASE_URL = os.getenv('BASE_URL', 'http://localhost:8888')
+# BASE_URL = os.getenv('BASE_URL', 'http://nyu-recommendation-service-s18.mybluemix.net')
 
 
 def before_all(context):

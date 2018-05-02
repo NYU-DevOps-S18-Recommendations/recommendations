@@ -161,10 +161,10 @@ def list_recommendations():
     recommended_product_id = request.args.get('recommended_product_id')
     if product_id:
         message, return_code = query_recommendations_by_product_id(product_id)
-    elif recommendation_type:
-        message, return_code = query_recommendations_by_recommendation_type(recommendation_type)
     elif recommended_product_id:
         message, return_code = query_recommendations_by_recommended_product_id(recommended_product_id)
+    elif recommendation_type:
+        message, return_code = query_recommendations_by_recommendation_type(recommendation_type)
     else:
         results = Recommendation.all()
         message = [recommendation.serialize() for recommendation in results]
