@@ -220,7 +220,24 @@ def query_recommendations_by_recommended_product_id(recommended_product_id):
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
 def get_recommendations(id):
-    """ Retrieves a recommendation with a specific id """
+    """ Retrieves a Recommendation with a specific id
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations/<int:id>
+    parameters:
+      - name: id
+        in: path
+        description: The unique id of a recommendation
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Recommendation returned
+      404:
+        description: Recommendation not found
+    """
     recommendation = Recommendation.find(id)
     if recommendation:
         message = recommendation.serialize()
@@ -238,7 +255,42 @@ def get_recommendations(id):
 
 @app.route('/recommendations', methods=['POST'])
 def create_recommendations():
-    """ Creates a recommendation in the database from the posted database """
+    """ Creates and saves a recommendation
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          required:
+            - product_id
+            - recommended_product_id
+            - recommendation_type
+            - likes
+          properties:
+            id:
+              type: integer
+              description: The unique id of a recommendation
+            product_id:
+              type: integer
+              description: The product id of this recommendation
+            recommended_product_id:
+              type: integer
+              description: The product id of being recommended
+            recommendation_type:
+              type: string
+              description: The type of this recommendation, should be ('up-sell', 'cross-sell', 'accessory')
+            likes:
+              type: integer
+              description: The count of how many people like this recommendation
+    responses:
+      201:
+        description: Recommendation created
+    """
     payload = request.get_json()
     recommendation = Recommendation()
     recommendation.deserialize(payload)
@@ -255,7 +307,26 @@ def create_recommendations():
 
 @app.route('/recommendations/<int:id>', methods=['PUT'])
 def update_recommendations(id):
-    """ Updates a recommendation in the database fom the posted database """
+    """ Updates a recommendation with a specific id
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations/<int:id>
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: The unique id of a recommendation
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Recommendation updated
+      404:
+        description: Recommendation not found
+    """
     recommendation = Recommendation.find(id)
     if recommendation:
         payload = request.get_json()
@@ -302,7 +373,26 @@ def delete_recommendations(id):
 
 @app.route('/recommendations/<int:id>/likes', methods=['PUT'])
 def like_recommendation(id):
-    """ Increase the number of likes for a recommendation with matching id """
+    """ Increase the number of likes for a recommendation with a specific id
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations/<int:id>/likes
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: The unique id of a recommendation
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Recommendation updated
+      404:
+        description: Recommendation not found
+    """
     recommendation = Recommendation.find(id)
     if not recommendation:
         message = {'error': 'Recommendation with product_id: %s was not found' % str(id)}
