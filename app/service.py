@@ -18,6 +18,7 @@ from . import app
 import logging
 from flask import Flask, Response, jsonify, request, json, url_for, make_response
 from flask_api import status
+from flask_restplus import Api, Resource, fields
 from models import Recommendation, DataValidationError
 
 # Pull options from environment
@@ -33,9 +34,29 @@ HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
 
 ######################################################################
+# Configure Swagger before initilaizing it
+######################################################################
+api = Api(app,
+          version='1.0.0',
+          title='Recommendations REST API Service',
+          description='This is a Recommendations server.',
+          doc='/apidocs/'
+         )
+
+# This namespace is the start of the path i.e., /recommendations
+ns = api.namespace('recommendations', description='Recommendations operations')
+
+# Define the model so that the docs reflect what can be sent
+recommendations_model = api.model('Recommendations', {
+    'id': fields.Integer(readOnly=True, description='The unique id assigned internally by service'),
+    'product_id': fields.Integer(required=True, description='The product that recommendations is for'),
+    'recommended_product_id': fields.Integer(required=True, description='The recommended products'),
+    'recommendation_type': fields.String(required=True, description='The type of recommendation'),
+    'likes': fields.Integer(readOnly=True, description='The number of likes for a recommendation')
+})
+######################################################################
 # Error Handlers
 ######################################################################
-
 
 @app.errorhandler(DataValidationError)
 def request_validation_error(error):
