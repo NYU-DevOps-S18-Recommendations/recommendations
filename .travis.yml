@@ -16,7 +16,7 @@ before_script:
 
 script:
   - nosetests
-  # - behave
+  - behave
   # - nosetests tests/test_selenium.py
   # - coverage run tests/test_server.py
 
