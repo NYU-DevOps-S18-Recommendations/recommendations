@@ -145,7 +145,8 @@ $(function () {
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Recommendation with ID [" + res.id + "] has been Deleted!")
+            //flash_message("Recommendation with ID [" + res.id + "] has been Deleted!")
+            flash_message("Recommendation successfully deleted!")
             //or should it be recommendation_id
         });
 
@@ -219,7 +220,7 @@ $(function () {
             var header = '<tr>'
             header += '<th style="width:20%">ID</th>'
             header += '<th style="width:30%">Product ID</th>'
-            header += '<th style="width:30%">Reommended ID</th>'
+            header += '<th style="width:30%">Recommended ID</th>'
             header += '<th style="width:30%">Recommendation Type</th>'
             header += '<th style="width:30%">Likes</th></tr>'
             $("#search_results").append(header);
