@@ -57,6 +57,14 @@ Scenario: Read a recommendation
     Then I should see "2" in the "Recommended_Product_ID" field
     Then I should see "Accessory" in the "Recommendation_Type" field
 
+Scenario: Query a recommendation
+  When I visit the "Home Page"
+  And I set the "Product_ID" to "14"
+  And I press the "Search" button
+  Then I should see "4" in the results
+  Then I should see "31" in the results
+  Then I should see "Up-sell" in the results
+
 Scenario: Like a recommendation
     When I visit the "Home Page"
     And I set the "Id" to "2"
@@ -67,11 +75,3 @@ Scenario: Like a recommendation
     Then I should see "1" in the "Likes" field
     When I press the "Like" button
     Then I should see "2" in the "Likes" field
-
-Scenario: Query a recommendation
-  When I visit the "Home Page"
-  And I set the "Product_ID" to "14"
-  And I press the "Search" button
-  Then I should see "4" in the results
-  Then I should see "31" in the results
-  Then I should see "Up-sell" in the results

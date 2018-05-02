@@ -147,6 +147,23 @@ def query_recommendations_by_recommended_product_id(recommended_product_id):
 
     return message, return_code
 
+<<<<<<< HEAD
+=======
+def query_recommendations_by_likes(likes):
+    """ Query a recommendaiton from the database that have the same number of likes """
+    recommendations = Recommendation.find_by_likes(likes)
+    if len(recommendations) > 0:
+        message = [recommendation.serialize()
+                   for recommendation in recommendations]
+        return_code = HTTP_200_OK
+    else:
+        message = {'error': 'Recommendation with product_id: \
+                    %s was not found' % str(likes)}
+        return_code = HTTP_404_NOT_FOUND
+
+    return message, return_code
+
+>>>>>>> 0dfc678204a726927162ae8118f1b58b258e76ff
 
 ######################################################################
 # RETRIEVE A recommendation
