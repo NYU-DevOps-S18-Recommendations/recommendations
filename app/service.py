@@ -18,6 +18,7 @@ from . import app
 import logging
 from flask import Flask, Response, jsonify, request, json, url_for, make_response
 from flask_api import status
+from flasgger import Swagger
 from models import Recommendation, DataValidationError
 
 # Pull options from environment
@@ -31,6 +32,31 @@ HTTP_204_NO_CONTENT = 204
 HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
+
+app = Flask(__name__)
+
+######################################################################
+# Configure Swagger before initializing it
+######################################################################
+
+app.config['SWAGGER'] = {
+    "swagger_version": "2.0",
+    "specs": [
+        {
+            "version": "1.0.0",
+            "title": "Recommendations REST API Service",
+            "description": "This is a Recommendations server.",
+            "endpoint": 'v1_spec',
+            "route": '/v1/spec'
+        }
+    ]
+}
+
+######################################################################
+# Initialize Swagger after configuring it
+######################################################################
+Swagger(app)
+
 
 ######################################################################
 # Error Handlers
