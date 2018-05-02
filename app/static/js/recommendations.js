@@ -6,7 +6,7 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#recommendation_id").val(res.id);
+        $("#id").val(res.id);
         $("#product_id").val(res.product_id);
         $("#recommended_product_id").val(res.recommended_product_id);
         $("#recommendation_type").val(res.recommendation_type);
@@ -69,7 +69,7 @@ $(function () {
 
     $("#update-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
         var product_id = $("#product_id").val();
         var recommended_product_id = $("#recommended_product_id").val();
         var recommendation_type = $("#recommendation_type").val();
@@ -106,7 +106,7 @@ $(function () {
 
     $("#retrieve-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
 
         var ajax = $.ajax({
             type: "GET",
@@ -134,7 +134,7 @@ $(function () {
 
     $("#delete-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
 
         var ajax = $.ajax({
             type: "DELETE",
@@ -160,7 +160,7 @@ $(function () {
     // ****************************************
 
     $("#clear-btn").click(function () {
-        $("#recommendation_id").val("");
+        $("#id").val("");
         clear_form_data()
     });
 
@@ -170,7 +170,7 @@ $(function () {
 
     $("#search-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
         var product_id = $("#product_id").val();
         var recommended_product_id = $("#recommended_product_id").val();
         var recommendation_type = $("#recommendation_type").val();
@@ -254,10 +254,10 @@ $(function () {
 
     $("#like-btn").click(function () {
 
-        var recommendation_id = $("#recommendation_id").val();
+        var recommendation_id = $("#id").val();
 
         var data = {
-            "recommendation_id": parseInt(recommendation_id),
+            "id": parseInt(recommendation_id),
         };
 
         var ajax = $.ajax({
