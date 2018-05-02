@@ -6,10 +6,10 @@ Feature: The store service back-end
 Background:
   Given the following recommendations
       | id | product_id | recommended_product_id | recommendation_type | likes |
-      |  1 | 31         |  2                     | accessory           | 1     |
-      |  2 |  1         |  2                     | accessory           | 1     |
-      |  3 | 11         | 21                     | cross-sell          | 1     |
-      |  4 | 14         | 31                     | up-sell             | 2     |
+      |  1 | 31         |  2                     | Accessory           | 1     |
+      |  2 |  1         |  2                     | Accessory           | 1     |
+      |  3 | 11         | 21                     | Cross-sell          | 1     |
+      |  4 | 14         | 31                     | Up-sell             | 2     |
 
 Scenario: The server is running
     When I visit the "Home Page"
