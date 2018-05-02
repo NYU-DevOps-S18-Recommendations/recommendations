@@ -92,15 +92,12 @@ def list_recommendations():
     product_id = request.args.get('product_id')
     recommendation_type = request.args.get('recommendation_type')
     recommended_product_id = request.args.get('recommended_product_id')
-    likes = request.args.get('likes')
     if product_id:
         message, return_code = query_recommendations_by_product_id(product_id)
     elif recommendation_type:
         message, return_code = query_recommendations_by_recommendation_type(recommendation_type)
     elif recommended_product_id:
         message, return_code = query_recommendations_by_recommended_product_id(recommended_product_id)
-    elif likes:
-        message, return_code = query_recommendations_by_likes(likes)
     else:
         results = Recommendation.all()
         message = [recommendation.serialize() for recommendation in results]
@@ -146,20 +143,6 @@ def query_recommendations_by_recommended_product_id(recommended_product_id):
     else:
         message = {'error': 'Recommendation with product_id: \
                     %s was not found' % str(recommended_product_id)}
-        return_code = HTTP_404_NOT_FOUND
-
-    return message, return_code
-
-def query_recommendations_by_likes(likes):
-    """ Query a recommendaiton from the database that have the same number of likes """
-    recommendations = Recommendation.find_by_likes(likes)
-    if len(recommendations) > 0:
-        message = [recommendation.serialize()
-                   for recommendation in recommendations]
-        return_code = HTTP_200_OK
-    else:
-        message = {'error': 'Recommendation with product_id: \
-                    %s was not found' % str(likes)}
         return_code = HTTP_404_NOT_FOUND
 
     return message, return_code
