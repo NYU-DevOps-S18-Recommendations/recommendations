@@ -12,9 +12,9 @@ Background:
       |  4 | 14         | 31                     | Up-sell             | 2     |
 
 Scenario: The server is running
-    When I visit the "Home Page"
-    Then I should see "Recommendation RESTful Service" in the title
-    And I should not see "404 Not Found"
+  When I visit the "Home Page"
+  Then I should see "Recommendation RESTful Service" in the title
+  And I should not see "404 Not Found"
 
 Scenario: Create a recommendation
   When I visit the "Home Page"
@@ -28,7 +28,7 @@ Scenario: Create a recommendation
 
 Scenario: Update a recommendation
   When I visit the "Home Page"
-  And I set the "Id" to "3"
+  And I set the "Recommendation_ID" to "3"
   And I press the "Retrieve" button
   Then I should see "11" in the "Product_ID" field
   Then I should see "21" in the "Recommended_Product_ID" field
@@ -36,9 +36,11 @@ Scenario: Update a recommendation
   When I change "Product_ID" to "12"
   And I press the "Update" button
   Then I should see the message "Success"
-  When I set the "Id" to "3"
+  When I set the "Recommendation_ID" to "3"
   And I press the "Retrieve" button
   Then I should see "12" in the "Product_ID" field
+  When I press the "Search" button
+  Then I should see "12" in the results
 
 Scenario: Delete a recommendation
     When I visit the "Home Page"
@@ -65,3 +67,11 @@ Scenario: Like a recommendation
     Then I should see "1" in the "Likes" field
     When I press the "Like" button
     Then I should see "2" in the "Likes" field
+
+Scenario: Query a recommendation
+  When I visit the "Home Page"
+  And I set the "Product_ID" to "14"
+  And I press the "Search" button
+  Then I should see "4" in the results
+  Then I should see "31" in the results
+  Then I should see "Up-sell" in the results

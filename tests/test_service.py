@@ -90,6 +90,50 @@ class TestRecommendationservice(unittest.TestCase):
         resp = self.app.get('/recommendations?product_id=' + 'PS5')
         self.assertEqual(resp.status_code, 500)
 
+    def test_query_recommendation_by_recommendation_type(self):
+        """ Query Recommendations by the recommendation_type """
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+        service.Recommendation(id=0, product_id=PS5, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+
+        resp = self.app.get('/recommendations?recommendation_type=' + str("up-sell"))
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['recommendation_type'], "up-sell")
+
+    def test_query_recommendation_by_recommendation_type_not_found(self):
+        """ Query Recommendations by the recommendation_type that doesn't exist """
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
+
+        resp = self.app.get('/recommendations?recommendation_type=' + str("cross-sell"))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_recommendation_by_recommended_product_id(self):
+        """ Query Recommendations by the recommended_product_id """
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+        service.Recommendation(id=0, product_id=PS5, recommended_product_id=MONSTER_HUNTER, recommendation_type="cross-sell").save()
+
+        resp = self.app.get('/recommendations?recommended_product_id=' + str(MONSTER_HUNTER))
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data), 2)
+        self.assertEqual(data[0]['recommended_product_id'], MONSTER_HUNTER)
+
+    def test_query_recommendation_by_recommended_product_id_not_found(self):
+        """ Query Recommendations by the recommended_product_id that doesn't exist """
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
+        service.Recommendation(id=0, product_id=PS4, recommended_product_id=PS5, recommendation_type="up-sell").save()
+
+        resp = self.app.get('/recommendations?recommended_product_id=' + str(PS4))
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_get_recommendation_list(self):
         """ Get a list of Recommendations """
         service.Recommendation(0, product_id=PS4, recommended_product_id=CONTROLLER, recommendation_type="accessory").save()
