@@ -87,7 +87,7 @@ $(function () {
                 url: "/recommendations/" + recommendation_id,
                 contentType:"application/json",
                 data: JSON.stringify(data)
-            })
+        });
 
         ajax.done(function(res){
             update_form_data(res)
@@ -113,7 +113,7 @@ $(function () {
             url: "/recommendations/" + recommendation_id,
             contentType:"application/json",
             data: ''
-        })
+        });
 
         ajax.done(function(res){
             //alert(res.toSource())
@@ -176,7 +176,7 @@ $(function () {
         var recommendation_type = $("#recommendation_type").val();
         var recommendation_likes = $("#likes").val();
 
-        var queryString = ""
+        var queryString = "";
 
         if (recommendation_type) {
             queryString += 'recommendation_type=' + recommendation_type
@@ -226,12 +226,12 @@ $(function () {
             $("#search_results").append(header);
             for(var i = 0; i < res.length; i++) {
                 recommendation = res[i];
-                var row = "<tr><td>"  + 
-                            recommendation.id + "</td><td>" + 
+                var row = "<tr><td>"  +
+                            recommendation.id + "</td><td>" +
                             recommendation.product_id + "</td><td>" +
-                            recommendation.recommended_product_id + "</td><td>" + 
+                            recommendation.recommended_product_id + "</td><td>" +
                             recommendation.recommendation_type + "</td><td>" +
-                            recommendation.likes + 
+                            recommendation.likes +
                           "</td></tr>";
                 $("#search_results").append(row);
             }
