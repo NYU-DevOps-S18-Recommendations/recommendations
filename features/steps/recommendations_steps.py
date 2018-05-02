@@ -13,7 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait, Select
 from selenium.webdriver.support import expected_conditions
 
 WAIT_SECONDS = 30
-BASE_URL = getenv('BASE_URL', 'http://localhost:8888/')
+BASE_URL = getenv('BASE_URL', 'http://nyu-recommendation-service-s18.mybluemix.net')
 
 @given(u'the following recommendations')
 def step_impl(context):
