@@ -75,3 +75,12 @@ Scenario: Like a recommendation
     Then I should see "1" in the "Likes" field
     When I press the "Like" button
     Then I should see "2" in the "Likes" field
+
+Scenario: List all recommendations
+    When I visit the "Home Page"
+    And I press the "Search" button
+    Then I should see "31" in the results
+    And I should see "1" in the results
+    And I should see "11" in the results
+    And I should see "14" in the results
+
