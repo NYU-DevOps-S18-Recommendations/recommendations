@@ -178,7 +178,24 @@ def query_recommendations_by_recommended_product_id(recommended_product_id):
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
 def get_recommendations(id):
-    """ Retrieves a recommendation with a specific id """
+    """ Retrieves a Recommendation with a specific id
+    ---
+    tags:
+      - Recommendations
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of recommendation
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Recommendation returned
+      404:
+        description: Recommendation not found
+    """
     recommendation = Recommendation.find(id)
     if recommendation:
         message = recommendation.serialize()
