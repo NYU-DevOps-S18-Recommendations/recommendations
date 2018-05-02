@@ -28,4 +28,5 @@ requests==2.13.0
 honcho
 #httpie
 
-
+# Swagger
+flasgger==0.8.1

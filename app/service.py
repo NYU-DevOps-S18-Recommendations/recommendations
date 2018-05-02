@@ -18,6 +18,7 @@ from . import app
 import logging
 from flask import Flask, Response, jsonify, request, json, url_for, make_response
 from flask_api import status
+from flasgger import Swagger
 from models import Recommendation, DataValidationError
 
 # Pull options from environment
@@ -31,6 +32,29 @@ HTTP_204_NO_CONTENT = 204
 HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
+
+######################################################################
+# Configure Swagger before initializing it
+######################################################################
+
+app.config['SWAGGER'] = {
+    "swagger_version": "2.0",
+    "specs": [
+        {
+            "version": "1.0.0",
+            "title": "Recommendations REST API Service",
+            "description": "This is a Recommendations server.",
+            "endpoint": 'v1_spec',
+            "route": '/v1/spec'
+        }
+    ]
+}
+
+######################################################################
+# Initialize Swagger after configuring it
+######################################################################
+Swagger(app)
+
 
 ######################################################################
 # Error Handlers
@@ -75,77 +99,88 @@ def internal_server_error(error):
 @app.route('/')
 def index():
     """ Return something useful by default """
-    # return jsonify(name='Recommendations REST API Service',
-    #                version='1.0',
-    #                url=url_for('list_recommendations', _external=True)), HTTP_200_OK
     return app.send_static_file('index.html')
 
 ######################################################################
 # LIST ALL & QUERY recommendations
 ######################################################################
-
-
 @app.route('/recommendations', methods=['GET'])
 def list_recommendations():
-    """ Retrieves a list of recommendations from the database """
+    """
+    Retrieves a list of recommendations from the database
+    This endpoint will return all recommendations unless it is given
+    a query parameter
+    ----
+    tags:
+        - Recommendations
+    description: List recommendations from the database
+    parameters:
+        - in: query
+          name: product_id
+          type: integer
+          descrtiption: query the recommendation that matches the product_id
+        - in: query
+          name: recommendation_type
+          type: string
+          description: query the recommendation that matches the reommendation_type
+        - in: query
+          name: recommended_product_id
+          type: integer
+          description: query the recommendation that matches the recommended_product_id
+    definitions:
+        Recommendation:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: the unique id of a recommendation
+                recommendation type:
+                    type: string
+                    description: type of the recommendation
+                recommended product id:
+                    type: integer
+                    description: id of a recommended product
+                likes:
+                    type: integer
+                    description: the count of how many people like this recommendation
+    responses:
+        200:
+            description: A list of recommendations
+            schema:
+                type: list
+        400:
+            description: Recommendation was not found
+
+    """
     results = []
     product_id = request.args.get('product_id')
     recommendation_type = request.args.get('recommendation_type')
     recommended_product_id = request.args.get('recommended_product_id')
     if product_id:
-        message, return_code = query_recommendations_by_product_id(product_id)
+        recommendations = query_recommendations_by_product_id(product_id)
     elif recommendation_type:
-        message, return_code = query_recommendations_by_recommendation_type(recommendation_type)
+        recommendations = query_recommendations_by_recommendation_type(recommendation_type)
     elif recommended_product_id:
-        message, return_code = query_recommendations_by_recommended_product_id(recommended_product_id)
+        recommendations = query_recommendations_by_recommended_product_id(recommended_product_id)
     else:
-        results = Recommendation.all()
-        message = [recommendation.serialize() for recommendation in results]
-        return_code = HTTP_200_OK
+        recommendations = Recommendation.all()
 
-    return jsonify(message), return_code
+    results = [recommendation.serialize() for recommendation in recommendations]
+    return make_response(jsonify(results), HTTP_200_OK)
 
 def query_recommendations_by_product_id(product_id):
-    """ Query a recommendation from the database that have the same product_id """
-    recommendations = Recommendation.find_by_product_id(int(product_id))
-    if len(recommendations) > 0:
-        message = [recommendation.serialize()
-                   for recommendation in recommendations]
-        return_code = HTTP_200_OK
-    else:
-        message = {'error': 'Recommendation with product_id: \
-                    %s was not found' % str(product_id)}
-        return_code = HTTP_404_NOT_FOUND
-
-    return message, return_code
+    """
+    Query a recommendation from the database that have the same product_id
+    """
+    return Recommendation.__find_by('product_id', int(product_id))
 
 def query_recommendations_by_recommendation_type(recommendation_type):
     """ Query a recommendation from the database that have the same recommendation type """
-    recommendations = Recommendation.find_by_recommend_type(str(recommendation_type))
-    if len(recommendations) > 0:
-        message = [recommendation.serialize()
-                   for recommendation in recommendations]
-        return_code = HTTP_200_OK
-    else:
-        message = {'error': 'Recommendation with product_id: \
-                    %s was not found' % str(recommendation_type)}
-        return_code = HTTP_404_NOT_FOUND
-
-    return message, return_code
+    return Recommendation.__find_by('recommendation_type', recommendation_type)
 
 def query_recommendations_by_recommended_product_id(recommended_product_id):
     """ Query a recommendation from the database that have the same recommended product id """
-    recommendations = Recommendation.find_by_recommend_product_id(int(recommended_product_id))
-    if len(recommendations) > 0:
-        message = [recommendation.serialize()
-                   for recommendation in recommendations]
-        return_code = HTTP_200_OK
-    else:
-        message = {'error': 'Recommendation with product_id: \
-                    %s was not found' % str(recommended_product_id)}
-        return_code = HTTP_404_NOT_FOUND
-
-    return message, return_code
+    return Recommendation.__find_by('recommended_product_id', int(recommended_product_id))
 
 ######################################################################
 # RETRIEVE A recommendation
@@ -154,7 +189,24 @@ def query_recommendations_by_recommended_product_id(recommended_product_id):
 
 @app.route('/recommendations/<int:id>', methods=['GET'])
 def get_recommendations(id):
-    """ Retrieves a recommendation with a specific id """
+    """ Retrieves a Recommendation with a specific id
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations/<int:id>
+    parameters:
+      - name: id
+        in: path
+        description: The unique id of a recommendation
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Recommendation returned
+      404:
+        description: Recommendation not found
+    """
     recommendation = Recommendation.find(id)
     if recommendation:
         message = recommendation.serialize()
@@ -172,7 +224,42 @@ def get_recommendations(id):
 
 @app.route('/recommendations', methods=['POST'])
 def create_recommendations():
-    """ Creates a recommendation in the database from the posted database """
+    """ Creates and saves a recommendation
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          required:
+            - product_id
+            - recommended_product_id
+            - recommendation_type
+            - likes
+          properties:
+            id:
+              type: integer
+              description: The unique id of a recommendation
+            product_id:
+              type: integer
+              description: The product id of this recommendation
+            recommended_product_id:
+              type: integer
+              description: The product id of being recommended
+            recommendation_type:
+              type: string
+              description: The type of this recommendation, should be ('up-sell', 'cross-sell', 'accessory')
+            likes:
+              type: integer
+              description: The count of how many people like this recommendation
+    responses:
+      201:
+        description: Recommendation created
+    """
     payload = request.get_json()
     recommendation = Recommendation()
     recommendation.deserialize(payload)
@@ -189,7 +276,26 @@ def create_recommendations():
 
 @app.route('/recommendations/<int:id>', methods=['PUT'])
 def update_recommendations(id):
-    """ Updates a recommendation in the database fom the posted database """
+    """ Updates a recommendation with a specific id
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations/<int:id>
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: The unique id of a recommendation
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Recommendation updated
+      404:
+        description: Recommendation not found
+    """
     recommendation = Recommendation.find(id)
     if recommendation:
         payload = request.get_json()
@@ -206,11 +312,24 @@ def update_recommendations(id):
 ######################################################################
 # DELETE A recommendation
 ######################################################################
-
-
 @app.route('/recommendations/<int:id>', methods=['DELETE'])
 def delete_recommendations(id):
-    """ Removes a recommendation from the database that matches the id """
+    """ Removes a recommendation from the database that matches the id
+    This endpoint will delete a recommendation based on its id
+    ---
+    tags:
+        - Recommendations
+    description: Delete a recommendation from the database
+    parameters:
+        - name: id
+          in: path
+          description: ID of a recommendation to delete
+          type: integer
+          required: true
+    responses:
+        204:
+            description: Recommendation deleted
+    """
     recommendation = Recommendation.find(id)
     if recommendation:
         recommendation.delete()
@@ -223,7 +342,26 @@ def delete_recommendations(id):
 
 @app.route('/recommendations/<int:id>/likes', methods=['PUT'])
 def like_recommendation(id):
-    """ Increase the number of likes for a recommendation with matching id """
+    """ Increase the number of likes for a recommendation with a specific id
+    ---
+    tags:
+      - Recommendations
+    path:
+      - /recommendations/<int:id>/likes
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: The unique id of a recommendation
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Recommendation updated
+      404:
+        description: Recommendation not found
+    """
     recommendation = Recommendation.find(id)
     if not recommendation:
         message = {'error': 'Recommendation with product_id: %s was not found' % str(id)}
